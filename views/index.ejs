@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>AREDN-FrontRoyal Mesh Network</title>
+
+    <script src="jquery.min.js"></script>
+    <script src="vis-network.min.js"></script>
+
+    <style type="text/css">
+      body,
+      html {
+        font: 10pt sans;
+        line-height: 1.5em;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        color: #4d4d4d;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+
+      #contents {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      #right {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 10px;
+        box-sizing: border-box;
+        display: inline-block;
+      }
+
+      #error {
+        color: red;
+      }
+
+      #mynetwork {
+        width: 100%;
+        height: 100%;
+        border: 1px solid #d3d3d3;
+        box-sizing: border-box;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <div id="contents">
+      <div id="right">
+        <div id="mynetwork"></div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+
+      const options = {
+
+        // TODO: Figure out how to throw this up into a side panel, Toggle on/off
+        // configure: {
+        //   enabled: true,
+        //   filter: 'nodes', //,edges',
+        //   container: undefined,
+        //   showButton: true
+        // },
+
+        "nodes": {
+          "physics": false,
+        },
+        "edges": {
+          //"selfReferenceSize": null,
+          "selfReference": {
+            "angle": 0.7853981633974483,
+          },
+          "shadow": {
+            "enabled": false,
+          },
+          "smooth": {
+            "forceDirection": "none",
+          }
+        },
+      }
+
+      //cnovert codes back to characters
+      meshNodes = JSON.parse("<%= meshNodes %>".replaceAll('&#34;','"'));
+      meshLinks = JSON.parse("<%= meshLinks %>".replaceAll('&#34;','"'));
+
+      var data = {};
+
+      // create an nodes and links array
+      let nodeArray = []
+      var edgeArray = []
+
+      //process all the topology links
+      for (let i = 0; i < meshLinks.length; i++){
+        //don't process links with undefined nodes.
+        if (meshLinks[i].hasOwnProperty('from') && meshLinks[i].hasOwnProperty('to')){
+          let extraOptions = {};
+          //if the link cost is < 0.1 then it's a DtD node so color it red
+          if (meshLinks[i].ecost < 0.10) extraOptions = {
+                                                          color: "red", 
+                                                          title: 'DtD'
+                                                        }
+          //add the edge topology data to vis
+          //set the edge width inversely proportional to the cost
+          edgeArray.push({
+            from: meshLinks[i].from, 
+            to: meshLinks[i].to, 
+            arrows:{
+              to: {enabled: true, }
+            }, 
+            title: meshLinks[i].ecost, 
+            width: 5.0/(meshLinks[i].ecost+1.0), 
+            ...extraOptions
+          })
+          // Add the nodes
+          addNode(meshLinks[i].from);
+          addNode(meshLinks[i].to);
+        }
+        else {
+          console.log('wtf: ', meshLinks[i])
+        }
+
+      }
+
+      //initialize vis.js data structures with nodes and edges
+      var nodes = new vis.DataSet(nodeArray);
+      var edges = new vis.DataSet(edgeArray);
+      var data = {
+        nodes: nodes,
+        edges: edges
+      };
+
+      var container = document.getElementById("mynetwork");
+
+      // create the network
+      var network = new vis.Network(container, data, options);
+
+      //event handlers
+      network.on(
+        "doubleClick", (mydata) => {jump(mydata)},
+      );
+
+      $(window).resize(resize);
+
+      function resize() {
+        $("#contents").height($("body").height() - $("#header").height() - 30);
+      }
+
+      //doubleclick event
+      function jump(mydata) {
+        //console.log(mydata);
+        //if an node was double clicked
+        if (mydata.nodes.length > 0) {
+          //get the URT to open from the vis.js data
+          let obj = nodeArray.find(o => o.id === mydata.nodes[0]);
+          //open new tab with the node's homepage
+          window.open(obj.URL);
+        }
+        else {
+          //if the background is doubleclicked handle that here.
+        }
+      }
+
+      function addNode(node){
+        let na = {}
+      //is the node already in the nodeArray?
+        na = nodeArray.find(n => n.id === node)
+        if ( na === undefined){ // if the node has NOT already been added
+          let extraOptions = {URL: "http://" + node + ".local.mesh"} 
+          nodeArray.push({
+            id: node, 
+            label: node, 
+            ...extraOptions 
+          })
+        }
+      }
+
+    </script>
+  </body>
+</html>
