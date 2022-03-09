@@ -152,6 +152,13 @@
         "dragEnd", (mydata) => {savePos(mydata)},
       );
 
+      $("#mynetwork").keydown(function (event) {
+        if (event.ctrlKey && event.keyCode === 13) {
+          // Ctrl+Enter
+          localStorage.removeItem('node-positions');
+        }
+      });
+
       $(window).resize(resize);
 
       function resize() {
@@ -178,10 +185,16 @@
       //is the node already in the nodeArray?
         na = nodeArray.find(n => n.id === node)
         if ( na === undefined){ // if the node has NOT already been added
-          let extraOptions = {URL: "http://" + node + ".local.mesh",
+          let extraOptions = {URL: "http://" + node + ".local.mesh"};
+          try {
+            extraOptions = {
+                              ...extraOptions, 
                               x: nodePositions[node].x,
                               y: nodePositions[node].y,
-                            } 
+                            }; 
+          } catch (e) {
+
+          }
           nodeArray.push({
             id: node, 
             label: node, 
