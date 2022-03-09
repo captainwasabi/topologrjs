@@ -156,6 +156,7 @@
         if (event.ctrlKey && event.keyCode === 13) {
           // Ctrl+Enter
           localStorage.removeItem('node-positions');
+          location.reload(true);
         }
       });
 
@@ -206,6 +207,7 @@
       function savePos(mydata) {
         positions = network.getPositions();
         localStorage.setItem('node-positions', JSON.stringify(positions));
+
       }
 
     </script>

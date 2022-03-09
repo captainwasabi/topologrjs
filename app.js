@@ -6,8 +6,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const expressip = require('express-ip');
 
 
-let names = {}; //dict to hold ip addresses & hostnames names[ip] = hostname
-let out = ""; //.dot formatted network data to send to the client
+
 
 var app = express()
 let port = 3001;
@@ -17,8 +16,9 @@ app.set('view engine', 'ejs')
 app.use(express.static('dist'))
 app.use(expressip().getIpInfoMiddleware);
 
-let meshdata = {}
-let jdata = {}; //json data
+let names = {}; //dict to hold ip addresses & hostnames names[ip] = hostname
+let meshdata = {};
+let jdata = {};
 let odata = {};
 let links = [];
 
