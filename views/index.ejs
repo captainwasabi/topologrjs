@@ -91,6 +91,7 @@
       //cnovert codes back to characters
       meshNodes = JSON.parse("<%= meshNodes %>".replaceAll('&#34;','"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replaceAll('&#34;','"'));
+      nodePositions = JSON.parse(localStorage.getItem('node-positions'));
 
       var data = {};
 
@@ -145,7 +146,10 @@
 
       //event handlers
       network.on(
-        "doubleClick", (mydata) => {jump(mydata)},
+        "doubleClick", (mydata) => {jump(mydata)}
+      );
+      network.on(
+        "dragEnd", (mydata) => {savePos(mydata)},
       );
 
       $(window).resize(resize);
@@ -174,13 +178,21 @@
       //is the node already in the nodeArray?
         na = nodeArray.find(n => n.id === node)
         if ( na === undefined){ // if the node has NOT already been added
-          let extraOptions = {URL: "http://" + node + ".local.mesh"} 
+          let extraOptions = {URL: "http://" + node + ".local.mesh",
+                              x: nodePositions[node].x,
+                              y: nodePositions[node].y,
+                            } 
           nodeArray.push({
             id: node, 
             label: node, 
             ...extraOptions 
           })
         }
+      }
+
+      function savePos(mydata) {
+        positions = network.getPositions();
+        localStorage.setItem('node-positions', JSON.stringify(positions));
       }
 
     </script>
