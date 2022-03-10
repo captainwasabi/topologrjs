@@ -77,6 +77,9 @@
   </div>
   
   <script type="text/javascript">
+
+    var selectedNode;
+    var nodeGroup;
     
     var color1 = document.querySelector(".color1")
     color1.addEventListener("input", returnColor)
@@ -152,6 +155,7 @@
 
       //initialize vis.js data structures with nodes and edges
       var nodes = new vis.DataSet(nodeArray);
+      console.log(nodes)
       var edges = new vis.DataSet(edgeArray);
       var data = {
         nodes: nodes,
@@ -211,6 +215,16 @@
       function setColor(mydata){
         if (mydata.nodes.length == 0) {
           color1.style.display = "none";
+          for (let i = 0; i < nodeGroup.length; i++){
+            na = nodeArray.find(n => n.id === nodeGroup[i].id)
+            na.color = color1.value
+          }
+          nodes = new vis.DataSet(nodeArray);
+          data = {
+            nodes: nodes,
+            edges: edges
+          };
+          network.setData(data);
         }
       }
 
@@ -244,10 +258,19 @@
 
       function colorNode(mydata) {
         color1.style.display = "block";
+        selectedNode = mydata.nodes[0];
+        nodeGroup = nodeArray.filter(n => n.id.startsWith(selectedNode.substr(0,selectedNode.indexOf("-")-1)));
       }
 
       function returnColor(){
-        x = color1.value;
+        na = nodeArray.find(n => n.id === selectedNode)
+        na.color = color1.value
+        nodes = new vis.DataSet(nodeArray);
+        data = {
+          nodes: nodes,
+          edges: edges
+        };
+        network.setData(data);
       }
 
     </script>
