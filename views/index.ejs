@@ -50,18 +50,38 @@
       }
 
     </style>
-  </head>
-  <body>
 
-    <div id="contents">
-      <div id="right">
-        <div id="mynetwork"></div>
+    <style media="screen">
+
+      .color1{
+        width: 50px;
+        height: 40px;
+        float: left;
+        margin: 10px;
+        margin-top: 15px;
+        display: none;
+      }
+      
+      </style>
+
+</head>
+<body>
+
+  <div id="contents">
+    <div id="right">
+      <div id = "in">
+        <input type="color" class="color1" name="color1" value="#FFAAAA">
       </div>
+      <div id="mynetwork"></div>
     </div>
+  </div>
+  
+  <script type="text/javascript">
+    
+    var color1 = document.querySelector(".color1")
+    color1.addEventListener("input", returnColor)
 
-    <script type="text/javascript">
-
-      const options = {
+    const options = {
 
         // TODO: Figure out how to throw this up into a side panel, Toggle on/off
         // configure: {
@@ -92,9 +112,8 @@
       meshNodes = JSON.parse("<%= meshNodes %>".replaceAll('&#34;','"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replaceAll('&#34;','"'));
       nodePositions = JSON.parse(localStorage.getItem('node-positions'));
-
+    
       var data = {};
-
       // create an nodes and links array
       let nodeArray = []
       var edgeArray = []
@@ -151,6 +170,12 @@
       network.on(
         "dragEnd", (mydata) => {savePos(mydata)},
       );
+      network.on(
+        "click", (mydata) => {setColor(mydata)}
+      )
+      network.on(
+        "selectNode", (mydata) => {colorNode(mydata)},
+      )
 
       $("#mynetwork").keydown(function (event) {
         if (event.ctrlKey && event.keyCode === 13) {
@@ -161,6 +186,7 @@
       });
 
       $(window).resize(resize);
+
 
       function resize() {
         $("#contents").height($("body").height() - $("#header").height() - 30);
@@ -178,6 +204,13 @@
         }
         else {
           //if the background is doubleclicked handle that here.
+
+        }
+      }
+
+      function setColor(mydata){
+        if (mydata.nodes.length == 0) {
+          color1.style.display = "none";
         }
       }
 
@@ -189,10 +222,10 @@
           let extraOptions = {URL: "http://" + node + ".local.mesh"};
           try {
             extraOptions = {
-                              ...extraOptions, 
-                              x: nodePositions[node].x,
-                              y: nodePositions[node].y,
-                            }; 
+              ...extraOptions, 
+              x: nodePositions[node].x,
+              y: nodePositions[node].y,
+            }; 
           } catch (e) {
 
           }
@@ -207,7 +240,14 @@
       function savePos(mydata) {
         positions = network.getPositions();
         localStorage.setItem('node-positions', JSON.stringify(positions));
+      }
 
+      function colorNode(mydata) {
+        color1.style.display = "block";
+      }
+
+      function returnColor(){
+        x = color1.value;
       }
 
     </script>
