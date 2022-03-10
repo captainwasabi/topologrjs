@@ -70,7 +70,7 @@
   <div id="contents">
     <div id="right">
       <div id = "in">
-        <input type="color" class="color1" name="color1" value="#FFAAAA">
+        <input type="color" class="color1" name="color1" value="#97C2FC">
       </div>
       <div id="mynetwork"></div>
     </div>
@@ -79,7 +79,9 @@
   <script type="text/javascript">
 
     var selectedNode;
-    var nodeGroup;
+    var nodeGroup = [];
+    var nodecolors = {};
+
     
     var color1 = document.querySelector(".color1")
     color1.addEventListener("input", returnColor)
@@ -214,11 +216,16 @@
 
       function setColor(mydata){
         if (mydata.nodes.length == 0) {
+          if (nodeGroup.length == 0) return;
           color1.style.display = "none";
+          nodePositions = JSON.parse(localStorage.getItem('node-positions'));
           for (let i = 0; i < nodeGroup.length; i++){
             na = nodeArray.find(n => n.id === nodeGroup[i].id)
             na.color = color1.value
+            na.x = nodePositions[na.id].x
+            na.y = nodePositions[na.id].y
           }
+          nodeGroup = [];
           nodes = new vis.DataSet(nodeArray);
           data = {
             nodes: nodes,
@@ -252,12 +259,19 @@
       }
 
       function savePos(mydata) {
-        positions = network.getPositions();
-        localStorage.setItem('node-positions', JSON.stringify(positions));
+        nodePositions = network.getPositions();
+        for (let i = 0; i < nodeArray.length; i++) {
+          nodeArray[i] = {
+            ...nodeArray[i], 
+            ...nodePositions[nodeArray[i].id],
+          }
+        }
+        localStorage.setItem('node-positions', JSON.stringify(nodePositions));
       }
 
       function colorNode(mydata) {
         color1.style.display = "block";
+        color1.value = "#97C2FC"
         selectedNode = mydata.nodes[0];
         nodeGroup = nodeArray.filter(n => n.id.startsWith(selectedNode.substr(0,selectedNode.indexOf("-")-1)));
       }
