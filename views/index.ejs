@@ -117,6 +117,9 @@
       meshNodes = JSON.parse("<%= meshNodes %>".replaceAll('&#34;','"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replaceAll('&#34;','"'));
       nodePositions = JSON.parse(localStorage.getItem('node-positions'));
+      if (nodePositions === null){
+        nodePositions = {}
+      }
       nodeColors = JSON.parse(localStorage.getItem('node-colors'));
       if (nodeColors === null){
         nodeColors = {}
@@ -224,11 +227,16 @@
           if (nodeGroup.length == 0) return;
           color1.style.display = "none";
           nodePositions = JSON.parse(localStorage.getItem('node-positions'));
+          if (nodePositions === null){
+            nodePositions = {}
+          }
           for (let i = 0; i < nodeGroup.length; i++){
             na = nodeArray.find(n => n.id === nodeGroup[i].id)
             na.color = color1.value
-            na.x = nodePositions[na.id].x
-            na.y = nodePositions[na.id].y
+            if (nodePositions[na.id] !== undefined){
+              na.x = nodePositions[na.id].x
+              na.y = nodePositions[na.id].y
+            }
             nodeColors[na.id] = color1.value
           }
           localStorage.setItem('node-colors', JSON.stringify(nodeColors));
@@ -289,10 +297,8 @@
       function colorNode(mydata) {
         color1.style.display = "block";
         color1.value = "#97C2FC"
-        try{
+        if (nodeColors[mydata.nodes[0]] !== undefined){
           color1.value = nodeColors[mydata.nodes[0]]
-        } catch (e) {
-
         }
         
         selectedNode = mydata.nodes[0];
