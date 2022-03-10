@@ -117,11 +117,16 @@
       meshNodes = JSON.parse("<%= meshNodes %>".replaceAll('&#34;','"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replaceAll('&#34;','"'));
       nodePositions = JSON.parse(localStorage.getItem('node-positions'));
+      nodeColors = JSON.parse(localStorage.getItem('node-colors'));
+      if (nodeColors === null){
+        nodeColors = {}
+      }
     
       var data = {};
       // create an nodes and links array
       let nodeArray = []
       var edgeArray = []
+
 
       //process all the topology links
       for (let i = 0; i < meshLinks.length; i++){
@@ -224,7 +229,9 @@
             na.color = color1.value
             na.x = nodePositions[na.id].x
             na.y = nodePositions[na.id].y
+            nodeColors[na.id] = color1.value
           }
+          localStorage.setItem('node-colors', JSON.stringify(nodeColors));
           nodeGroup = [];
           nodes = new vis.DataSet(nodeArray);
           data = {
@@ -250,6 +257,16 @@
           } catch (e) {
 
           }
+          try{
+            if (nodeColors[node] != null){
+              extraOptions = {
+                ...extraOptions,
+                color: nodeColors[node],
+              }
+            }
+        } catch (e) {
+
+        }
           nodeArray.push({
             id: node, 
             label: node, 
