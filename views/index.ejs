@@ -289,6 +289,12 @@
       function colorNode(mydata) {
         color1.style.display = "block";
         color1.value = "#97C2FC"
+        try{
+          color1.value = nodeColors[mydata.nodes[0]]
+        } catch (e) {
+
+        }
+        
         selectedNode = mydata.nodes[0];
         nodeGroup = nodeArray.filter(n => n.id.startsWith(selectedNode.substr(0,selectedNode.indexOf("-")-1)));
       }
