@@ -72,7 +72,9 @@
       <div id = "in">
         <input type="color" class="color1" name="color1" value="#97C2FC">
       </div>
-      <div id="mynetwork"></div>
+      <div id="mynetwork" ondrop="dropSettings(event);" 
+                          ondragover="dragover_handler(event)">
+      </div>
     </div>
   </div>
   
@@ -191,29 +193,28 @@
         "selectNode", (mydata) => {colorNode(mydata)},
       )
 
-
-
+      
       $("#mynetwork").keydown(function (event) {
         if (event.ctrlKey && event.key === "Enter") {
           // Ctrl+Enter
           localStorage.removeItem('node-positions');
           location.reload(true);
-      } else if (event.ctrlKey && event.key === "s") {
-        downloadTextFile(JSON.stringify({
+        } else if (event.ctrlKey && event.key === "s") {
+          downloadTextFile(JSON.stringify({
             nodePositions,
             nodeColors
           }), 'settings.json');
           event.preventDefault();
-      }
+        }
       });
-
+      
       $(window).resize(resize);
-
-
+      
+      
       function resize() {
         $("#contents").height($("body").height() - $("#header").height() - 30);
       }
-
+      
       //doubleclick event
       function jump(mydata) {
         //console.log(mydata);
@@ -226,10 +227,10 @@
         }
         else {
           //if the background is doubleclicked handle that here.
-
+          
         }
       }
-
+      
       function setColor(mydata){
         if (mydata.nodes.length == 0) {
           if (nodeGroup.length == 0) return;
@@ -257,10 +258,10 @@
           network.setData(data);
         }
       }
-
+      
       function addNode(node){
         let na = {}
-      //is the node already in the nodeArray?
+        //is the node already in the nodeArray?
         na = nodeArray.find(n => n.id === node)
         if ( na === undefined){ // if the node has NOT already been added
           let extraOptions = {URL: "http://" + node + ".local.mesh"};
@@ -271,7 +272,7 @@
               y: nodePositions[node].y,
             }; 
           } catch (e) {
-
+            
           }
           try{
             if (nodeColors[node] != null){
@@ -280,9 +281,9 @@
                 color: nodeColors[node],
               }
             }
-        } catch (e) {
-
-        }
+          } catch (e) {
+            
+          }
           nodeArray.push({
             id: node, 
             label: node, 
@@ -290,7 +291,7 @@
           })
         }
       }
-
+      
       function savePos(mydata) {
         nodePositions = network.getPositions();
         for (let i = 0; i < nodeArray.length; i++) {
@@ -301,7 +302,7 @@
         }
         localStorage.setItem('node-positions', JSON.stringify(nodePositions));
       }
-
+      
       function colorNode(mydata) {
         color1.style.display = "block";
         color1.value = "#97C2FC"
@@ -312,7 +313,7 @@
         selectedNode = mydata.nodes[0];
         nodeGroup = nodeArray.filter(n => n.id.startsWith(selectedNode.substr(0,selectedNode.indexOf("-")-1)));
       }
-
+      
       function returnColor(){
         na = nodeArray.find(n => n.id === selectedNode)
         na.color = color1.value
@@ -323,7 +324,7 @@
         };
         network.setData(data);
       }
-
+      
       function downloadTextFile(text, name) {
         const a = document.createElement('a');
         const type = name.split(".").pop();
@@ -331,9 +332,43 @@
         a.download = name;
         a.click();
       }
-
       
+      function dropSettings(event) {
+        event.preventDefault();
+        const [item] = event.dataTransfer.items;
+        console.log(item.getAsFile());
+        var file = event.dataTransfer.files[0],
+                  reader = new FileReader();
+        reader.onload = function (event) {
+          console.log(event.target.result);
+          try {
+            let ds = JSON.parse(event.target.result);
+            for (let i = 0; i < nodeArray.length; i++){
+              nn = nodeArray[i].id;
+              nodeArray[i].x = ds.nodePositions[nn].x
+              nodeArray[i].y = ds.nodePositions[nn].y
+              nodeArray[i].color = ds.nodeColors[nn]
+            }
+            localStorage.setItem('node-positions', JSON.stringify(ds.nodePositions));
+            localStorage.setItem('node-colors', JSON.stringify(ds.nodeColors));
+            nodes = new vis.DataSet(nodeArray);
+            data = {
+              nodes: nodes,
+              edges: edges
+            };
+            network.setData(data);
+          } catch (e) {
 
-    </script>
+          }
+
+        };
+        reader.readAsText(file);
+      };
+      
+      function dragover_handler(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      }
+      </script>
   </body>
-</html>
+  </html>
