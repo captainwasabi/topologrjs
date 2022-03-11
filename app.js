@@ -11,10 +11,10 @@ const expressip = require('express-ip');
 var app = express()
 let port = 3001;
 
-app.set('view engine', 'ejs')
 
 app.use(express.static('dist'))
 app.use(expressip().getIpInfoMiddleware);
+app.set('view engine', 'ejs')
 
 let names = {}; //dict to hold ip addresses & hostnames names[ip] = hostname
 let meshdata = {};
@@ -55,6 +55,7 @@ async function main(res) {
   //     console.log(links[i].to + " found")
   //   }
   // }
+
   res.render('index', {meshNodes: JSON.stringify(names), meshLinks: JSON.stringify(links)});
 }
 

@@ -191,12 +191,20 @@
         "selectNode", (mydata) => {colorNode(mydata)},
       )
 
+
+
       $("#mynetwork").keydown(function (event) {
-        if (event.ctrlKey && event.keyCode === 13) {
+        if (event.ctrlKey && event.key === "Enter") {
           // Ctrl+Enter
           localStorage.removeItem('node-positions');
           location.reload(true);
-        }
+      } else if (event.ctrlKey && event.key === "s") {
+        downloadTextFile(JSON.stringify({
+            nodePositions,
+            nodeColors
+          }), 'settings.json');
+          event.preventDefault();
+      }
       });
 
       $(window).resize(resize);
@@ -315,6 +323,16 @@
         };
         network.setData(data);
       }
+
+      function downloadTextFile(text, name) {
+        const a = document.createElement('a');
+        const type = name.split(".").pop();
+        a.href = URL.createObjectURL( new Blob([text], { type:`text/${type === "txt" ? "plain" : type}` }) );
+        a.download = name;
+        a.click();
+      }
+
+      
 
     </script>
   </body>
