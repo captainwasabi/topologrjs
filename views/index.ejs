@@ -345,20 +345,32 @@
             let ds = JSON.parse(event.target.result);
             for (let i = 0; i < nodeArray.length; i++){
               nn = nodeArray[i].id;
-              nodeArray[i].x = ds.nodePositions[nn].x
-              nodeArray[i].y = ds.nodePositions[nn].y
-              nodeArray[i].color = ds.nodeColors[nn]
+              try {
+                nodeArray[i].x = ds.nodePositions[nn].x
+                nodeArray[i].y = ds.nodePositions[nn].y
+              } catch (e){}
+              var color;
+              try {
+                color = ds.nodeColors[nn]
+              } catch (e) {
+
+              }
+              if (color !== undefined) {
+                nodeArray[i].color = color;
+              }
+              console.log(nodeArray[i])
             }
             localStorage.setItem('node-positions', JSON.stringify(ds.nodePositions));
             localStorage.setItem('node-colors', JSON.stringify(ds.nodeColors));
             nodes = new vis.DataSet(nodeArray);
+
             data = {
               nodes: nodes,
               edges: edges
             };
             network.setData(data);
           } catch (e) {
-
+            console.log(e)
           }
 
         };
