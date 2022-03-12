@@ -4,6 +4,7 @@ const dns = require('dns');
 const dnsPromises = dns.promises;
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const expressip = require('express-ip');
+const { data } = require("vis-network");
 
 
 
@@ -62,6 +63,11 @@ async function main(res) {
 app.get("/",function(req,res){
   console.log(req.ipInfo.ip.replace("::ffff:",""));
   main(res);
+})
+
+app.get("/info/:nodeName", async function(req, res){
+  var d = await getNodeData(req.params.nodeName);
+  return res.json(d);
 })
 
 app.listen(port, function () {

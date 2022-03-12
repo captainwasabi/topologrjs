@@ -60,6 +60,21 @@
         border: 1px solid #d3d3d3;
         box-sizing: border-box;
       }
+
+      #in {
+        width:100%;
+      }
+
+      #nodeData {
+        width: 100%;
+        border: 1px solid #d3d3d3;
+        box-sizing: border-box;
+      }
+
+      #page {
+        height: auto;
+        width: auto;
+      }
     </style>
 
     <style media="screen">
@@ -81,6 +96,7 @@
         <div id = "in">
           <input type="color" class="color1" name="color1" value="#97C2FC">
         </div>
+        <div id = "nodeData"></div>
       </div>
       <div id="right">
         <div id="mynetwork" ondrop="dropSettings(event);" 
@@ -128,8 +144,8 @@
 
       //data insertion from server
       //convert codes back to characters
-      meshNodes = JSON.parse("<%= meshNodes %>".replaceAll('&#34;','"'));
-      meshLinks = JSON.parse("<%= meshLinks %>".replaceAll('&#34;','"'));
+      meshNodes = JSON.parse("<%= meshNodes %>".replace(/\&\#34\;/g,'"'));
+      meshLinks = JSON.parse("<%= meshLinks %>".replace(/\&\#34\;/g,'"'));
 
       //get data from local storage if it exists
       nodePositions = JSON.parse(localStorage.getItem('node-positions'));
@@ -204,9 +220,11 @@
         "click", (mydata) => {setColor(mydata)}
       )
       network.on(
-        "selectNode", (mydata) => {colorNode(mydata)},
+        "selectNode", (mydata) => {
+          colorNode(mydata);
+          loadNodeInfo(mydata);
+        },
       )
-
 
       document.addEventListener('keydown', function (event) {
         if (event.ctrlKey && event.key === "Enter") {
@@ -221,6 +239,24 @@
           event.preventDefault();
         }
       });
+
+      async function loadNodeInfo(mydata) {
+        if (mydata.nodes.length > 0) {
+          var d;
+          //get the URT to open from the vis.js data
+          let obj = nodeArray.find(o => o.id === mydata.nodes[0]);
+          let response = await fetch("http://"+location.host+"/info/"+mydata.nodes[0])
+          if (response.ok) { // if HTTP-status is 200-299
+            // get the response body (the method explained below)
+            d = await response.json();
+          } else {
+            alert("HTTP-Error: " + response.status);
+}
+          document.getElementById("nodeData").innerHTML = JSON.stringify(d)
+            
+                      //'<object id="page" type="text/html" data=' + obj.URL + ' ></object>';
+        }
+      }
 
       //doubleclick event
       function jump(mydata) {
