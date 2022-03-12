@@ -3,7 +3,6 @@
   <head>
     <title>AREDN-FrontRoyal Mesh Network</title>
 
-    
     <script src="vis-network.min.js"></script>
 
     <style type="text/css">
@@ -48,20 +47,17 @@
         border: 1px solid #d3d3d3;
         box-sizing: border-box;
       }
-
     </style>
 
     <style media="screen">
-
-      .color1{
-        width: 50px;
-        height: 40px;
-        float: left;
-        margin: 10px;
-        margin-top: 15px;
-        display: none;
-      }
-      
+        .color1{
+          width: 50px;
+          height: 40px;
+          float: left;
+          margin: 10px;
+          margin-top: 15px;
+          display: none;
+        }
       </style>
 
 </head>
@@ -84,7 +80,7 @@
       var nodeGroup = [];
       var nodecolors = {};
 
-      
+      //set up the  the color-picker handler
       var color1 = document.querySelector(".color1")
       color1.addEventListener("input", returnColor)
 
@@ -115,9 +111,12 @@
         },
       }
 
-      //cnovert codes back to characters
+      //data insertion from server
+      //convert codes back to characters
       meshNodes = JSON.parse("<%= meshNodes %>".replaceAll('&#34;','"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replaceAll('&#34;','"'));
+
+      //get data from local storage if it exists
       nodePositions = JSON.parse(localStorage.getItem('node-positions'));
       if (nodePositions === null){
         nodePositions = {}
