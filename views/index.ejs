@@ -257,11 +257,11 @@
           } else {
             alert("HTTP-Error: " + response.status);
           }
+          let rjson = renderjson(d)
           if (childNode !== undefined){
-            childNode = document.getElementById("nodeData").replaceChild(renderjson(d), childNode);
-          } else {
-            childNode = document.getElementById("nodeData").appendChild(renderjson(d));
+            childNode.parentNode.removeChild(childNode);
           }
+            childNode = document.getElementById("nodeData").appendChild(rjson);
             
                       //'<object id="page" type="text/html" data=' + obj.URL + ' ></object>';
         }

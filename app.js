@@ -1,17 +1,9 @@
 const express = require("express")
-//const net = require('net');
-//const dns = require('dns');
-//const dnsPromises = dns.promises;
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const expressip = require('express-ip');
-//const { data } = require("vis-network");
-
-
-
 
 var app = express()
 let port = 3001;
-
 
 app.use(express.static('dist'))
 app.use(expressip().getIpInfoMiddleware);
@@ -73,7 +65,6 @@ app.get("/info/:nodeName", async function(req, res){
 app.listen(port, function () {
   console.log("Started application on port %d", port)
 });
-
 
 async function load(url) {
   let obj = null; 
