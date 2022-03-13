@@ -2,7 +2,7 @@ const express = require("express");
 const expressip = require("express-ip");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
-const dns = require('dns');
+const dns = require("dns");
 const dnsPromises = dns.promises;
 
 var app = express();
@@ -49,18 +49,18 @@ async function main(res) {
   links = [];
   for (let i = 0; i < odata.topology.length; i++) {
     let nfrom = names[odata.topology[i].lastHopIP];
-    if (nfrom === undefined) 
+    if (nfrom === undefined)
       try {
-      nfrom = await dnsPromises.reverse(odata.topology[i].lastHopIP);
+        nfrom = await dnsPromises.reverse(odata.topology[i].lastHopIP);
       } catch (e) {
-        nfrom = odata.topology[i].lastHopIP
+        nfrom = odata.topology[i].lastHopIP;
       }
     let nto = names[odata.topology[i].destinationIP];
-    if (nto === undefined) 
+    if (nto === undefined)
       try {
-      nto = await dnsPromises.reverse(odata.topology[i].destinationIP);
+        nto = await dnsPromises.reverse(odata.topology[i].destinationIP);
       } catch (e) {
-        nto = odata.topology[i].destinationIP
+        nto = odata.topology[i].destinationIP;
       }
     links.push({
       from: nfrom,
@@ -111,14 +111,12 @@ async function load(url) {
 async function getNodeData(node) {
   //console.log(node);
   try {
-    if (node.substr(0,1) !== "1"){
-      node = node + ".local.mesh"
+    if (node.substr(0, 1) !== "1") {
+      node = node + ".local.mesh";
     }
     out = await (
       await load(
-        "http://" +
-          node +
-          "/cgi-bin/sysinfo.json?services_local=1&link_info=1"
+        "http://" + node + "/cgi-bin/sysinfo.json?services_local=1&link_info=1"
       )
     ).json();
   } catch (e) {
