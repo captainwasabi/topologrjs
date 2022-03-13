@@ -4,6 +4,7 @@
     <title>AREDN-FrontRoyal Mesh Network</title>
 
     <script src="vis-network.min.js"></script>
+    <script src="renderjson.js"></script>
 
     <style type="text/css">
       body,
@@ -69,24 +70,25 @@
         width: 100%;
         border: 1px solid #d3d3d3;
         box-sizing: border-box;
+        overflow: auto;
       }
 
       #page {
         height: auto;
         width: auto;
       }
+
+      #color1{
+        width: 100%;
+        height: 40px;
+        float: left;
+        margin: 10px;
+        margin-top: 15px;
+        display: none;
+      }
     </style>
 
-    <style media="screen">
-        .color1{
-          width: 50px;
-          height: 40px;
-          float: left;
-          margin: 10px;
-          margin-top: 15px;
-          display: none;
-        }
-      </style>
+
 
 </head>
 <body>
@@ -94,9 +96,11 @@
     <div id="contents">
       <div id="left">
         <div id = "in">
-          <input type="color" class="color1" name="color1" value="#97C2FC">
+          <input type="color" class="color1" name="color1" id="color1" value="#97C2FC">
         </div>
-        <div id = "nodeData"></div>
+        <p>
+         <div id = "nodeData"></div>
+        </p>
       </div>
       <div id="right">
         <div id="mynetwork" ondrop="dropSettings(event);" 
@@ -112,7 +116,7 @@
       var nodecolors = {};
 
       //set up the  the color-picker handler
-      var color1 = document.querySelector(".color1")
+      var color1 = document.getElementById("color1")
       color1.addEventListener("input", returnColor)
 
       const options = {
@@ -240,6 +244,7 @@
         }
       });
 
+      var childNode;
       async function loadNodeInfo(mydata) {
         if (mydata.nodes.length > 0) {
           var d;
@@ -251,8 +256,12 @@
             d = await response.json();
           } else {
             alert("HTTP-Error: " + response.status);
-}
-          document.getElementById("nodeData").innerHTML = JSON.stringify(d)
+          }
+          if (childNode !== undefined){
+            childNode = document.getElementById("nodeData").replaceChild(renderjson(d), childNode);
+          } else {
+            childNode = document.getElementById("nodeData").appendChild(renderjson(d));
+          }
             
                       //'<object id="page" type="text/html" data=' + obj.URL + ' ></object>';
         }

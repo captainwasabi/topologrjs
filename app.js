@@ -1,10 +1,10 @@
 const express = require("express")
-const net = require('net');
-const dns = require('dns');
-const dnsPromises = dns.promises;
+//const net = require('net');
+//const dns = require('dns');
+//const dnsPromises = dns.promises;
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const expressip = require('express-ip');
-const { data } = require("vis-network");
+//const { data } = require("vis-network");
 
 
 
