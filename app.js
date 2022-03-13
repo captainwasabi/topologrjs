@@ -1,7 +1,9 @@
 const express = require("express");
+const expressip = require("express-ip");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
-const expressip = require("express-ip");
+const dns = require('dns');
+const dnsPromises = dns.promises;
 
 var app = express();
 let port = 3001;
@@ -16,6 +18,20 @@ let meshdata = {};
 let jdata = {};
 let odata = {};
 let links = [];
+
+app.get("/", function (req, res) {
+  console.log(req.ipInfo.ip.replace("::ffff:", ""));
+  main(res);
+});
+
+app.get("/info/:nodeName", async function (req, res) {
+  var d = await getNodeData(req.params.nodeName);
+  return res.json(d);
+});
+
+app.listen(port, function () {
+  console.log("Started application on port %d", port);
+});
 
 async function main(res) {
   jdata = await (
@@ -32,15 +48,30 @@ async function main(res) {
   }
   links = [];
   for (let i = 0; i < odata.topology.length; i++) {
+    let nfrom = names[odata.topology[i].lastHopIP];
+    if (nfrom === undefined) 
+      try {
+      nfrom = await dnsPromises.reverse(odata.topology[i].lastHopIP);
+      } catch (e) {
+        nfrom = odata.topology[i].lastHopIP
+      }
+    let nto = names[odata.topology[i].destinationIP];
+    if (nto === undefined) 
+      try {
+      nto = await dnsPromises.reverse(odata.topology[i].destinationIP);
+      } catch (e) {
+        nto = odata.topology[i].destinationIP
+      }
     links.push({
-      from: names[odata.topology[i].lastHopIP],
-      to: names[odata.topology[i].destinationIP],
+      from: nfrom,
+      to: nto,
       pcost: odata.topology[i].pathCost,
       ecost: odata.topology[i].tcEdgeCost,
     });
   }
 
-  //console.table(links)
+  console.table(names);
+  console.table(links);
 
   // for (let i = 0; i < links.length; i++){
   //   console.log(links[i].from, links[i].to, links[i].pcost);
@@ -66,20 +97,6 @@ async function main(res) {
   });
 }
 
-app.get("/", function (req, res) {
-  console.log(req.ipInfo.ip.replace("::ffff:", ""));
-  main(res);
-});
-
-app.get("/info/:nodeName", async function (req, res) {
-  var d = await getNodeData(req.params.nodeName);
-  return res.json(d);
-});
-
-app.listen(port, function () {
-  console.log("Started application on port %d", port);
-});
-
 async function load(url) {
   let obj = null;
   try {
@@ -94,9 +111,14 @@ async function load(url) {
 async function getNodeData(node) {
   //console.log(node);
   try {
+    if (node.substr(0,1) !== "1"){
+      node = node + ".local.mesh"
+    }
     out = await (
       await load(
-        "http://" + node + ".local.mesh/cgi-bin/sysinfo.json?services_local=1"
+        "http://" +
+          node +
+          "/cgi-bin/sysinfo.json?services_local=1&link_info=1"
       )
     ).json();
   } catch (e) {

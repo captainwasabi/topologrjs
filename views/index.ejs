@@ -79,10 +79,15 @@
       width: auto;
     }
 
+    #logo {
+      margin: 0 auto;
+    }
+
     img {
-      width: 100%;
-      height: 100%;
+      width: 128px;
+      height: 128px;
       object-fit: cover;
+      float: left;
     }
 
     #color1 {
@@ -101,7 +106,7 @@
 
   <div id="contents">
     <div id="left">
-      <div><img src="Network-icon.png" alt="Network-icon.png"></div>
+      <div id="logo"><img src="Network-icon.png" alt="Network-icon.png">AREDN-FrontRoyal Mesh Network</div>
       <div id="in">
         <input type="color" class="color1" name="color1" id="color1" value="#97C2FC">
       </div>
@@ -159,6 +164,7 @@
     //convert codes back to characters
     meshNodes = JSON.parse("<%= meshNodes %>".replace(/\&\#34\;/g, '"'));
     meshLinks = JSON.parse("<%= meshLinks %>".replace(/\&\#34\;/g, '"'));
+    console.table(meshLinks);
 
     //get data from local storage if it exists
     nodePositions = JSON.parse(localStorage.getItem('node-positions'));
@@ -179,7 +185,7 @@
     //process all the topology links
     for (let i = 0; i < meshLinks.length; i++) {
       //don't process links with undefined nodes.
-      if (meshLinks[i].hasOwnProperty('from') && meshLinks[i].hasOwnProperty('to')) {
+      if (meshLinks[i].hasOwnProperty('from') || meshLinks[i].hasOwnProperty('to')) {
         let extraOptions = {};
         //if the link cost is < 0.1 then it's a DtD node so color it red
         if (meshLinks[i].ecost < 0.10) extraOptions = {
@@ -199,8 +205,12 @@
           ...extraOptions
         })
         // Add the nodes
-        addNode(meshLinks[i].from);
-        addNode(meshLinks[i].to);
+        if (meshLinks[i].hasOwnProperty('from')) {
+          addNode(meshLinks[i].from);
+        }
+        if (meshLinks[i].hasOwnProperty('to')) {
+          addNode(meshLinks[i].to);
+        }
       }
       else {
         console.log('wtf: ', meshLinks[i])
@@ -324,7 +334,11 @@
       //is the node already in the nodeArray?
       na = nodeArray.find(n => n.id === node)
       if (na === undefined) { // if the node has NOT already been added
-        let extraOptions = { URL: "http://" + node + ".local.mesh" };
+        let n = node;
+        if (n.substr(0,1) !== "1"){
+          n = n + ".local.mesh"
+        }
+        let extraOptions = { URL: "http://" + n };
         try {
           extraOptions = {
             ...extraOptions,
@@ -412,6 +426,7 @@
             var color;
             try {
               color = ds.nodeColors[nn]
+              nodeColors[nn] = color;
             } catch (e) {
 
             }
