@@ -80,7 +80,7 @@ async function load(url) {
 async function getNodeData(node){
   console.log(node);
   try {
-      out = await (await load("http://" + node + ".local.mesh/cgi-bin/sysinfo.json")).json();
+      out = await (await load("http://" + node + ".local.mesh/cgi-bin/sysinfo.json?services_local=1")).json();
   } catch (e) {
       console.log(e);
       out = ""
