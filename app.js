@@ -92,7 +92,7 @@ async function load(url) {
 }
 
 async function getNodeData(node) {
-  console.log(node);
+  //console.log(node);
   try {
     out = await (
       await load(
