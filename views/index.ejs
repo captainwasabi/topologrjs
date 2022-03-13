@@ -1,374 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>AREDN-FrontRoyal Mesh Network</title>
 
-    <script src="vis-network.min.js"></script>
-    <script src="renderjson.js"></script>
+<head>
+  <title>AREDN-FrontRoyal Mesh Network</title>
 
-    <style type="text/css">
-      body,
-      html {
-        font: 10pt sans;
-        line-height: 1.5em;
-        width: 100%;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        color: #4d4d4d;
-        box-sizing: border-box;
-        overflow: hidden;
-      }
+  <script src="vis-network.min.js"></script>
+  <script src="renderjson.js"></script>
 
-      #contents {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        position: relative;
-      }
+  <style type="text/css">
+    body,
+    html {
+      font: 10pt sans;
+      line-height: 1.5em;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      color: #4d4d4d;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
 
-      #left,
-      #right {
-        position: absolute;
-        width: 50%;
-        height: 100%;
-        margin: 0;
-        padding: 10px;
-        box-sizing: border-box;
-        display: inline-block;
-      }
+    #contents {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      position: relative;
+    }
 
-      #left {
-        width: 30%;
-        top: 0;
-        left: 0;
-      }
+    #left,
+    #right {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+      display: inline-block;
+    }
 
-      #right {
-        width: 70%;
-        top: 0;
-        right: 0;
-      }
+    #left {
+      width: 30%;
+      top: 0;
+      left: 0;
+    }
 
-      #error {
-        color: red;
-      }
+    #right {
+      width: 70%;
+      top: 0;
+      right: 0;
+    }
 
-      #mynetwork {
-        /*width: 100%;*/
-        height: 100%;
-        border: 1px solid #d3d3d3;
-        box-sizing: border-box;
-      }
+    #error {
+      color: red;
+    }
 
-      #in {
-        width:100%;
-      }
+    #mynetwork {
+      /*width: 100%;*/
+      height: 100%;
+      border: 1px solid #d3d3d3;
+      box-sizing: border-box;
+    }
 
-      #nodeData {
-        width: 100%;
-        border: 1px solid #d3d3d3;
-        box-sizing: border-box;
-        overflow: auto;
-      }
+    #in {
+      width: 100%;
+    }
 
-      #page {
-        height: auto;
-        width: auto;
-      }
+    #nodeData {
+      width: 100%;
+      border: 1px solid #d3d3d3;
+      box-sizing: border-box;
+      overflow: auto;
+    }
 
-      #color1{
-        width: 100%;
-        height: 40px;
-        float: left;
-        margin: 10px;
-        margin-top: 15px;
-        display: none;
-      }
-    </style>
+    #page {
+      height: auto;
+      width: auto;
+    }
+
+    #color1 {
+      width: 100%;
+      height: 40px;
+      float: left;
+      margin: 10px;
+      margin-top: 15px;
+      display: none;
+    }
+  </style>
 
 
 
 </head>
+
 <body>
 
-    <div id="contents">
-      <div id="left">
-        <div id = "in">
-          <input type="color" class="color1" name="color1" id="color1" value="#97C2FC">
-        </div>
-        <p>
-          <p><div id="nodeName"></div></p>
-         <div id = "nodeData"></div>
-        </p>
+  <div id="contents">
+    <div id="left">
+      <div id="in">
+        <input type="color" class="color1" name="color1" id="color1" value="#97C2FC">
       </div>
-      <div id="right">
-        <div id="mynetwork" ondrop="dropSettings(event);" 
-                            ondragover="dragover_handler(event)">
-        </div>
+      <p>
+      <p>
+      <div id="nodeName"></div>
+      </p>
+      <div id="nodeData"></div>
+      </p>
+    </div>
+    <div id="right">
+      <div id="mynetwork" ondrop="dropSettings(event);" ondragover="dragover_handler(event)">
       </div>
     </div>
-    
-    <script type="text/javascript">
+  </div>
 
-      var selectedNode;
-      var nodeGroup = [];
-      var nodecolors = {};
+  <script type="text/javascript">
 
-      //set up the  the color-picker handler
-      var color1 = document.getElementById("color1")
-      color1.addEventListener("input", returnColor)
+    var selectedNode;
+    var nodeGroup = [];
+    var nodecolors = {};
 
-      const options = {
+    //set up the  the color-picker handler
+    var color1 = document.getElementById("color1")
+    color1.addEventListener("input", returnColor)
 
-          // TODO: Figure out how to throw this up into a side panel, Toggle on/off
-          // configure: {
-          //   enabled: true,
-          //   filter: 'nodes', //,edges',
-          //   container: undefined,
-          //   showButton: true
-          // },
+    const options = {
 
-        "nodes": {
-          "physics": false,
+      // TODO: Figure out how to throw this up into a side panel, Toggle on/off
+      // configure: {
+      //   enabled: true,
+      //   filter: 'nodes', //,edges',
+      //   container: undefined,
+      //   showButton: true
+      // },
+
+      "nodes": {
+        "physics": false,
+      },
+      "edges": {
+        //"selfReferenceSize": null,
+        "selfReference": {
+          "angle": 0.7853981633974483,
         },
-        "edges": {
-          //"selfReferenceSize": null,
-          "selfReference": {
-            "angle": 0.7853981633974483,
+        "shadow": {
+          "enabled": false,
+        },
+        "smooth": {
+          "forceDirection": "none",
+        }
+      },
+    }
+
+    //data insertion from server
+    //convert codes back to characters
+    meshNodes = JSON.parse("<%= meshNodes %>".replace(/\&\#34\;/g, '"'));
+    meshLinks = JSON.parse("<%= meshLinks %>".replace(/\&\#34\;/g, '"'));
+
+    //get data from local storage if it exists
+    nodePositions = JSON.parse(localStorage.getItem('node-positions'));
+    if (nodePositions === null) {
+      nodePositions = {}
+    }
+    nodeColors = JSON.parse(localStorage.getItem('node-colors'));
+    if (nodeColors === null) {
+      nodeColors = {}
+    }
+
+    var data = {};
+    // create an nodes and links array
+    let nodeArray = []
+    var edgeArray = []
+
+
+    //process all the topology links
+    for (let i = 0; i < meshLinks.length; i++) {
+      //don't process links with undefined nodes.
+      if (meshLinks[i].hasOwnProperty('from') && meshLinks[i].hasOwnProperty('to')) {
+        let extraOptions = {};
+        //if the link cost is < 0.1 then it's a DtD node so color it red
+        if (meshLinks[i].ecost < 0.10) extraOptions = {
+          color: "red",
+          title: 'DtD'
+        }
+        //add the edge topology data to vis
+        //set the edge width inversely proportional to the cost
+        edgeArray.push({
+          from: meshLinks[i].from,
+          to: meshLinks[i].to,
+          arrows: {
+            to: { enabled: true, }
           },
-          "shadow": {
-            "enabled": false,
-          },
-          "smooth": {
-            "forceDirection": "none",
+          title: meshLinks[i].ecost,
+          width: 5.0 / (meshLinks[i].ecost + 1.0),
+          ...extraOptions
+        })
+        // Add the nodes
+        addNode(meshLinks[i].from);
+        addNode(meshLinks[i].to);
+      }
+      else {
+        console.log('wtf: ', meshLinks[i])
+      }
+
+    }
+
+    //initialize vis.js data structures with nodes and edges
+    var nodes = new vis.DataSet(nodeArray);
+    console.log(nodes)
+    var edges = new vis.DataSet(edgeArray);
+    var data = {
+      nodes: nodes,
+      edges: edges
+    };
+
+    var container = document.getElementById("mynetwork");
+
+    // create the network
+    var network = new vis.Network(container, data, options);
+
+    //event handlers
+    network.on(
+      "doubleClick", (mydata) => { jump(mydata) }
+    );
+    network.on(
+      "dragEnd", (mydata) => { savePos(mydata) },
+    );
+    network.on(
+      "click", (mydata) => { setColor(mydata) }
+    )
+    network.on(
+      "selectNode", (mydata) => {
+        colorNode(mydata);
+        loadNodeInfo(mydata);
+      },
+    )
+
+    document.addEventListener('keydown', function (event) {
+      if (event.ctrlKey && event.key === "Enter") {
+        // Ctrl+Enter
+        localStorage.removeItem('node-positions');
+        location.reload(true);
+      } else if (event.ctrlKey && event.key === "s") {
+        downloadTextFile(JSON.stringify({
+          nodePositions,
+          nodeColors
+        }), 'settings.json');
+        event.preventDefault();
+      }
+    });
+
+    var childNode;
+    async function loadNodeInfo(mydata) {
+      if (mydata.nodes.length > 0) {
+        var d;
+        //get the URT to open from the vis.js data
+        let obj = nodeArray.find(o => o.id === mydata.nodes[0]);
+        let response = await fetch("http://" + location.host + "/info/" + mydata.nodes[0])
+        if (response.ok) { // if HTTP-status is 200-299
+          // get the response body (the method explained below)
+          d = await response.json();
+        } else {
+          alert("HTTP-Error: " + response.status);
+        }
+        let rjson = renderjson(d)
+        if (childNode !== undefined) {
+          childNode.parentNode.removeChild(childNode);
+        }
+        document.getElementById("nodeName").innerHTML = mydata.nodes[0];
+        childNode = document.getElementById("nodeData").appendChild(rjson);
+      }
+    }
+
+    //doubleclick event
+    function jump(mydata) {
+      //console.log(mydata);
+      //if an node was double clicked
+      if (mydata.nodes.length > 0) {
+        //get the URT to open from the vis.js data
+        let obj = nodeArray.find(o => o.id === mydata.nodes[0]);
+        //open new tab with the node's homepage
+        window.open(obj.URL);
+      }
+      else {
+        //if the background is doubleclicked handle that here.
+
+      }
+    }
+
+    function setColor(mydata) {
+      if (mydata.nodes.length == 0) {
+        if (nodeGroup.length == 0) return;
+        color1.style.display = "none";
+        nodePositions = JSON.parse(localStorage.getItem('node-positions'));
+        if (nodePositions === null) {
+          nodePositions = {}
+        }
+        for (let i = 0; i < nodeGroup.length; i++) {
+          na = nodeArray.find(n => n.id === nodeGroup[i].id)
+          na.color = color1.value
+          if (nodePositions[na.id] !== undefined) {
+            na.x = nodePositions[na.id].x
+            na.y = nodePositions[na.id].y
           }
-        },
-      }
-
-      //data insertion from server
-      //convert codes back to characters
-      meshNodes = JSON.parse("<%= meshNodes %>".replace(/\&\#34\;/g,'"'));
-      meshLinks = JSON.parse("<%= meshLinks %>".replace(/\&\#34\;/g,'"'));
-
-      //get data from local storage if it exists
-      nodePositions = JSON.parse(localStorage.getItem('node-positions'));
-      if (nodePositions === null){
-        nodePositions = {}
-      }
-      nodeColors = JSON.parse(localStorage.getItem('node-colors'));
-      if (nodeColors === null){
-        nodeColors = {}
-      }
-    
-      var data = {};
-      // create an nodes and links array
-      let nodeArray = []
-      var edgeArray = []
-
-
-      //process all the topology links
-      for (let i = 0; i < meshLinks.length; i++){
-        //don't process links with undefined nodes.
-        if (meshLinks[i].hasOwnProperty('from') && meshLinks[i].hasOwnProperty('to')){
-          let extraOptions = {};
-          //if the link cost is < 0.1 then it's a DtD node so color it red
-          if (meshLinks[i].ecost < 0.10) extraOptions = {
-                                                          color: "red", 
-                                                          title: 'DtD'
-                                                        }
-          //add the edge topology data to vis
-          //set the edge width inversely proportional to the cost
-          edgeArray.push({
-            from: meshLinks[i].from, 
-            to: meshLinks[i].to, 
-            arrows:{
-              to: {enabled: true, }
-            }, 
-            title: meshLinks[i].ecost, 
-            width: 5.0/(meshLinks[i].ecost+1.0), 
-            ...extraOptions
-          })
-          // Add the nodes
-          addNode(meshLinks[i].from);
-          addNode(meshLinks[i].to);
+          nodeColors[na.id] = color1.value
         }
-        else {
-          console.log('wtf: ', meshLinks[i])
-        }
-
-      }
-
-      //initialize vis.js data structures with nodes and edges
-      var nodes = new vis.DataSet(nodeArray);
-      console.log(nodes)
-      var edges = new vis.DataSet(edgeArray);
-      var data = {
-        nodes: nodes,
-        edges: edges
-      };
-
-      var container = document.getElementById("mynetwork");
-
-      // create the network
-      var network = new vis.Network(container, data, options);
-
-      //event handlers
-      network.on(
-        "doubleClick", (mydata) => {jump(mydata)}
-      );
-      network.on(
-        "dragEnd", (mydata) => {savePos(mydata)},
-      );
-      network.on(
-        "click", (mydata) => {setColor(mydata)}
-      )
-      network.on(
-        "selectNode", (mydata) => {
-          colorNode(mydata);
-          loadNodeInfo(mydata);
-        },
-      )
-
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.key === "Enter") {
-          // Ctrl+Enter
-          localStorage.removeItem('node-positions');
-          location.reload(true);
-        } else if (event.ctrlKey && event.key === "s") {
-          downloadTextFile(JSON.stringify({
-            nodePositions,
-            nodeColors
-          }), 'settings.json');
-          event.preventDefault();
-        }
-      });
-
-      var childNode;
-      async function loadNodeInfo(mydata) {
-        if (mydata.nodes.length > 0) {
-          var d;
-          //get the URT to open from the vis.js data
-          let obj = nodeArray.find(o => o.id === mydata.nodes[0]);
-          let response = await fetch("http://"+location.host+"/info/"+mydata.nodes[0])
-          if (response.ok) { // if HTTP-status is 200-299
-            // get the response body (the method explained below)
-            d = await response.json();
-          } else {
-            alert("HTTP-Error: " + response.status);
-          }
-          let rjson = renderjson(d)
-          if (childNode !== undefined){
-            childNode.parentNode.removeChild(childNode);
-          }
-          document.getElementById("nodeName").innerHTML = mydata.nodes[0];
-          childNode = document.getElementById("nodeData").appendChild(rjson);
-        }
-      }
-
-      //doubleclick event
-      function jump(mydata) {
-        //console.log(mydata);
-        //if an node was double clicked
-        if (mydata.nodes.length > 0) {
-          //get the URT to open from the vis.js data
-          let obj = nodeArray.find(o => o.id === mydata.nodes[0]);
-          //open new tab with the node's homepage
-          window.open(obj.URL);
-        }
-        else {
-          //if the background is doubleclicked handle that here.
-          
-        }
-      }
-      
-      function setColor(mydata){
-        if (mydata.nodes.length == 0) {
-          if (nodeGroup.length == 0) return;
-          color1.style.display = "none";
-          nodePositions = JSON.parse(localStorage.getItem('node-positions'));
-          if (nodePositions === null){
-            nodePositions = {}
-          }
-          for (let i = 0; i < nodeGroup.length; i++){
-            na = nodeArray.find(n => n.id === nodeGroup[i].id)
-            na.color = color1.value
-            if (nodePositions[na.id] !== undefined){
-              na.x = nodePositions[na.id].x
-              na.y = nodePositions[na.id].y
-            }
-            nodeColors[na.id] = color1.value
-          }
-          localStorage.setItem('node-colors', JSON.stringify(nodeColors));
-          nodeGroup = [];
-          nodes = new vis.DataSet(nodeArray);
-          data = {
-            nodes: nodes,
-            edges: edges
-          };
-          network.setData(data);
-        }
-      }
-      
-      function addNode(node){
-        let na = {}
-        //is the node already in the nodeArray?
-        na = nodeArray.find(n => n.id === node)
-        if ( na === undefined){ // if the node has NOT already been added
-          let extraOptions = {URL: "http://" + node + ".local.mesh"};
-          try {
-            extraOptions = {
-              ...extraOptions, 
-              x: nodePositions[node].x,
-              y: nodePositions[node].y,
-            }; 
-          } catch (e) {
-            
-          }
-          try{
-            if (nodeColors[node] != null){
-              extraOptions = {
-                ...extraOptions,
-                color: nodeColors[node],
-              }
-            }
-          } catch (e) {
-            
-          }
-          nodeArray.push({
-            id: node, 
-            label: node, 
-            ...extraOptions 
-          })
-        }
-      }
-      
-      function savePos(mydata) {
-        nodePositions = network.getPositions();
-        for (let i = 0; i < nodeArray.length; i++) {
-          nodeArray[i] = {
-            ...nodeArray[i], 
-            ...nodePositions[nodeArray[i].id],
-          }
-        }
-        localStorage.setItem('node-positions', JSON.stringify(nodePositions));
-      }
-      
-      function colorNode(mydata) {
-        color1.style.display = "block";
-        color1.value = "#97C2FC"
-        if (nodeColors[mydata.nodes[0]] !== undefined){
-          color1.value = nodeColors[mydata.nodes[0]]
-        }
-        
-        selectedNode = mydata.nodes[0];
-        nodeGroup = nodeArray.filter(n => n.id.startsWith(selectedNode.substr(0,selectedNode.indexOf("-")-1)));
-      }
-      
-      function returnColor(){
-        na = nodeArray.find(n => n.id === selectedNode)
-        na.color = color1.value
+        localStorage.setItem('node-colors', JSON.stringify(nodeColors));
+        nodeGroup = [];
         nodes = new vis.DataSet(nodeArray);
         data = {
           nodes: nodes,
@@ -376,63 +312,131 @@
         };
         network.setData(data);
       }
-      
-      function downloadTextFile(text, name) {
-        const a = document.createElement('a');
-        const type = name.split(".").pop();
-        a.href = URL.createObjectURL( new Blob([text], { type:`text/${type === "txt" ? "plain" : type}` }) );
-        a.download = name;
-        a.click();
-      }
-      
-      function dropSettings(event) {
-        event.preventDefault();
-        const [item] = event.dataTransfer.items;
-        console.log(item.getAsFile());
-        var file = event.dataTransfer.files[0],
-                  reader = new FileReader();
-        reader.onload = function (event) {
-          console.log(event.target.result);
-          try {
-            let ds = JSON.parse(event.target.result);
-            for (let i = 0; i < nodeArray.length; i++){
-              nn = nodeArray[i].id;
-              try {
-                nodeArray[i].x = ds.nodePositions[nn].x
-                nodeArray[i].y = ds.nodePositions[nn].y
-              } catch (e){}
-              var color;
-              try {
-                color = ds.nodeColors[nn]
-              } catch (e) {
+    }
 
-              }
-              if (color !== undefined) {
-                nodeArray[i].color = color;
-              }
-              console.log(nodeArray[i])
+    function addNode(node) {
+      let na = {}
+      //is the node already in the nodeArray?
+      na = nodeArray.find(n => n.id === node)
+      if (na === undefined) { // if the node has NOT already been added
+        let extraOptions = { URL: "http://" + node + ".local.mesh" };
+        try {
+          extraOptions = {
+            ...extraOptions,
+            x: nodePositions[node].x,
+            y: nodePositions[node].y,
+          };
+        } catch (e) {
+
+        }
+        try {
+          if (nodeColors[node] != null) {
+            extraOptions = {
+              ...extraOptions,
+              color: nodeColors[node],
             }
-            localStorage.setItem('node-positions', JSON.stringify(ds.nodePositions));
-            localStorage.setItem('node-colors', JSON.stringify(ds.nodeColors));
-            nodes = new vis.DataSet(nodeArray);
-
-            data = {
-              nodes: nodes,
-              edges: edges
-            };
-            network.setData(data);
-          } catch (e) {
-            console.log(e)
           }
+        } catch (e) {
 
-        };
-        reader.readAsText(file);
-      };
-      
-      function dragover_handler(event) {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
+        }
+        nodeArray.push({
+          id: node,
+          label: node,
+          ...extraOptions
+        })
       }
-    </script>
-  </body>
+    }
+
+    function savePos(mydata) {
+      nodePositions = network.getPositions();
+      for (let i = 0; i < nodeArray.length; i++) {
+        nodeArray[i] = {
+          ...nodeArray[i],
+          ...nodePositions[nodeArray[i].id],
+        }
+      }
+      localStorage.setItem('node-positions', JSON.stringify(nodePositions));
+    }
+
+    function colorNode(mydata) {
+      color1.style.display = "block";
+      color1.value = "#97C2FC"
+      if (nodeColors[mydata.nodes[0]] !== undefined) {
+        color1.value = nodeColors[mydata.nodes[0]]
+      }
+
+      selectedNode = mydata.nodes[0];
+      nodeGroup = nodeArray.filter(n => n.id.startsWith(selectedNode.substr(0, selectedNode.indexOf("-") - 1)));
+    }
+
+    function returnColor() {
+      na = nodeArray.find(n => n.id === selectedNode)
+      na.color = color1.value
+      nodes = new vis.DataSet(nodeArray);
+      data = {
+        nodes: nodes,
+        edges: edges
+      };
+      network.setData(data);
+    }
+
+    function downloadTextFile(text, name) {
+      const a = document.createElement('a');
+      const type = name.split(".").pop();
+      a.href = URL.createObjectURL(new Blob([text], { type: `text/${type === "txt" ? "plain" : type}` }));
+      a.download = name;
+      a.click();
+    }
+
+    function dropSettings(event) {
+      event.preventDefault();
+      const [item] = event.dataTransfer.items;
+      console.log(item.getAsFile());
+      var file = event.dataTransfer.files[0],
+        reader = new FileReader();
+      reader.onload = function (event) {
+        console.log(event.target.result);
+        try {
+          let ds = JSON.parse(event.target.result);
+          for (let i = 0; i < nodeArray.length; i++) {
+            nn = nodeArray[i].id;
+            try {
+              nodeArray[i].x = ds.nodePositions[nn].x
+              nodeArray[i].y = ds.nodePositions[nn].y
+            } catch (e) { }
+            var color;
+            try {
+              color = ds.nodeColors[nn]
+            } catch (e) {
+
+            }
+            if (color !== undefined) {
+              nodeArray[i].color = color;
+            }
+            console.log(nodeArray[i])
+          }
+          localStorage.setItem('node-positions', JSON.stringify(ds.nodePositions));
+          localStorage.setItem('node-colors', JSON.stringify(ds.nodeColors));
+          nodes = new vis.DataSet(nodeArray);
+
+          data = {
+            nodes: nodes,
+            edges: edges
+          };
+          network.setData(data);
+        } catch (e) {
+          console.log(e)
+        }
+
+      };
+      reader.readAsText(file);
+    };
+
+    function dragover_handler(event) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+    }
+  </script>
+</body>
+
 </html>

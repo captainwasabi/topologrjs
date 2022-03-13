@@ -1,13 +1,15 @@
-const express = require("express")
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const expressip = require('express-ip');
+const express = require("express");
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+const expressip = require("express-ip");
 
-var app = express()
+var app = express();
 let port = 3001;
 
-app.use(express.static('dist'))
+app.use(express.static("assets"));
+app.use(express.static("dist"));
 app.use(expressip().getIpInfoMiddleware);
-app.set('view engine', 'ejs')
+app.set("view engine", "ejs");
 
 let names = {}; //dict to hold ip addresses & hostnames names[ip] = hostname
 let meshdata = {};
@@ -16,19 +18,28 @@ let odata = {};
 let links = [];
 
 async function main(res) {
-  jdata = await (await load("http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1")).json();
+  jdata = await (
+    await load(
+      "http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1"
+    )
+  ).json();
   //console.log(jdata)
   odata = await (await load("http://localnode.local.mesh:9090")).json();
   //console.log(odata)
   names = {};
-  for (let i = 0; i < jdata.hosts.length; i++){
+  for (let i = 0; i < jdata.hosts.length; i++) {
     names[jdata.hosts[i].ip] = jdata.hosts[i].name;
   }
-  links = []
-  for (let i = 0; i < odata.topology.length; i++){
-    links.push({from: names[odata.topology[i].lastHopIP], to: names[odata.topology[i].destinationIP], pcost: odata.topology[i].pathCost, ecost: odata.topology[i].tcEdgeCost });
+  links = [];
+  for (let i = 0; i < odata.topology.length; i++) {
+    links.push({
+      from: names[odata.topology[i].lastHopIP],
+      to: names[odata.topology[i].destinationIP],
+      pcost: odata.topology[i].pathCost,
+      ecost: odata.topology[i].tcEdgeCost,
+    });
   }
-  
+
   //console.table(links)
 
   // for (let i = 0; i < links.length; i++){
@@ -49,41 +60,48 @@ async function main(res) {
   //   }
   // }
 
-  res.render('index', {meshNodes: JSON.stringify(names), meshLinks: JSON.stringify(links)});
+  res.render("index", {
+    meshNodes: JSON.stringify(names),
+    meshLinks: JSON.stringify(links),
+  });
 }
 
-app.get("/",function(req,res){
-  console.log(req.ipInfo.ip.replace("::ffff:",""));
+app.get("/", function (req, res) {
+  console.log(req.ipInfo.ip.replace("::ffff:", ""));
   main(res);
-})
+});
 
-app.get("/info/:nodeName", async function(req, res){
+app.get("/info/:nodeName", async function (req, res) {
   var d = await getNodeData(req.params.nodeName);
   return res.json(d);
-})
+});
 
 app.listen(port, function () {
-  console.log("Started application on port %d", port)
+  console.log("Started application on port %d", port);
 });
 
 async function load(url) {
-  let obj = null; 
+  let obj = null;
   try {
-      obj = await (await fetch(url, {timeout: 10000}));
-  } catch(e) {
-      console.log('error');
+    obj = await await fetch(url, { timeout: 10000 });
+  } catch (e) {
+    console.log("error");
   }
   //console.log(obj);
   return obj;
 }
 
-async function getNodeData(node){
+async function getNodeData(node) {
   console.log(node);
   try {
-      out = await (await load("http://" + node + ".local.mesh/cgi-bin/sysinfo.json?services_local=1")).json();
+    out = await (
+      await load(
+        "http://" + node + ".local.mesh/cgi-bin/sysinfo.json?services_local=1"
+      )
+    ).json();
   } catch (e) {
-      console.log(e);
-      out = ""
+    console.log(e);
+    out = "";
   }
   //console.log(node + ":: " + JSON.stringify(out));
   return out;
