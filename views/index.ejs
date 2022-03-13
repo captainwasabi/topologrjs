@@ -99,6 +99,7 @@
           <input type="color" class="color1" name="color1" id="color1" value="#97C2FC">
         </div>
         <p>
+          <p><div id="nodeName"></div></p>
          <div id = "nodeData"></div>
         </p>
       </div>
@@ -261,7 +262,8 @@
           if (childNode !== undefined){
             childNode.parentNode.removeChild(childNode);
           }
-            childNode = document.getElementById("nodeData").appendChild(rjson);
+          document.getElementById("nodeName").innerHTML = mydata.nodes[0];
+          childNode = document.getElementById("nodeData").appendChild(rjson);
             
                       //'<object id="page" type="text/html" data=' + obj.URL + ' ></object>';
         }
