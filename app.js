@@ -4,6 +4,7 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const dns = require("dns");
 const dnsPromises = dns.promises;
+const storage = require("node-persist");
 
 var app = express();
 let port = 3001;
@@ -18,6 +19,9 @@ let meshdata = {};
 let jdata = {};
 let odata = {};
 let links = [];
+let meshIPMap = {};
+
+initStorage();
 
 app.get("/", function (req, res) {
   console.log(req.ipInfo.ip.replace("::ffff:", ""));
@@ -33,6 +37,16 @@ app.listen(port, function () {
   console.log("Started application on port %d", port);
 });
 
+async function initStorage() {
+  await storage.init();
+  let tmp = await storage.getItem("meshIPMap");
+  if (tmp === undefined) {
+    meshIPMap = {};
+  } else {
+    meshIPMap = JSON.parse(tmp);
+  }
+}
+
 async function main(res) {
   jdata = await (
     await load(
@@ -45,23 +59,27 @@ async function main(res) {
   names = {};
   for (let i = 0; i < jdata.hosts.length; i++) {
     names[jdata.hosts[i].ip] = jdata.hosts[i].name;
+    meshIPMap[jdata.hosts[i].ip] = jdata.hosts[i].name;
   }
   links = [];
   for (let i = 0; i < odata.topology.length; i++) {
-    let nfrom = names[odata.topology[i].lastHopIP];
+    let nfrom = meshIPMap[odata.topology[i].lastHopIP];
     if (nfrom === undefined)
       try {
         nfrom = await dnsPromises.reverse(odata.topology[i].lastHopIP);
+        meshIPMap[odata.topology[i].lastHopIP] = nfrom;
       } catch (e) {
         nfrom = odata.topology[i].lastHopIP;
       }
-    let nto = names[odata.topology[i].destinationIP];
+    let nto = meshIPMap[odata.topology[i].destinationIP];
     if (nto === undefined)
       try {
         nto = await dnsPromises.reverse(odata.topology[i].destinationIP);
+        meshIPMap[odata.topology[i].destinationIP] = nto;
       } catch (e) {
         nto = odata.topology[i].destinationIP;
       }
+    await storage.setItem("meshIPMap", JSON.stringify(meshIPMap));
     links.push({
       from: nfrom,
       to: nto,
