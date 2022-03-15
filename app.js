@@ -54,7 +54,13 @@ async function main(res) {
     )
   ).json();
   //console.log(jdata)
-  odata = await (await load("http://localnode.local.mesh:9090")).json();
+  do {
+    try {
+      odata = await (await load("http://localnode.local.mesh:9090")).json();
+    } catch (e) {
+      odata = null;
+    }
+  } while (odata === null);
   //console.log(odata)
   names = {};
   for (let i = 0; i < jdata.hosts.length; i++) {
