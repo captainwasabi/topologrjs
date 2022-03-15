@@ -266,10 +266,14 @@
         event.preventDefault();
       }
     });
-
+    
     var childNode;
     async function loadNodeInfo(mydata) {
       if (mydata.nodes.length > 0) {
+        document.getElementById("nodeName").innerHTML = mydata.nodes[0];
+        if (childNode !== undefined && childNode.parentNode !== null) {
+          childNode.parentNode.removeChild(childNode);
+        }
         var d;
         //get the URT to open from the vis.js data
         let obj = nodeArray.find(o => o.id === mydata.nodes[0]);
@@ -281,10 +285,18 @@
           alert("HTTP-Error: " + response.status);
         }
         let rjson = renderjson(d)
-        if (childNode !== undefined) {
-          childNode.parentNode.removeChild(childNode);
-        }
-        document.getElementById("nodeName").innerHTML = mydata.nodes[0];
+        if (rjson.textContent === "\"\"") return;
+        // let txt = `${d.node}<br>lat: ${d.lat} lon: ${d.lon}<br>grid: ${d.grid_square}<br>uptime: ${d.sysinfo.uptime}<ul><li>Services:<ol>`
+        // for (let i = 0; i < d.services_local.length; i++) {
+        //   txt = txt + `<li>${d.services_local[i].name}</li>`
+        // }
+        // txt = txt + "</ol></li></ul><ul><li>Links:<ol>"
+        // for (const ip in d.link_info) {
+        //   if (d.link_info[ip].linkCost > 100) continue;
+        //   txt = txt + `<li>${meshNodes[ip]} - ${d.link_info[ip].linkQuality}</li>`
+        // }
+        // txt = txt + "</ol></li></ul>"
+        //document.getElementById("nodeData").innerHTML = txt;
         childNode = document.getElementById("nodeData").appendChild(rjson);
       }
     }
