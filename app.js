@@ -145,7 +145,7 @@ async function load(url) {
   try {
     obj = await await fetch(url, { timeout: 3000 });
   } catch (e) {
-    logger.error(e.stack);
+    logger.warn(e.stack);
   }
   logger.debug(obj);
   return obj;
@@ -164,7 +164,7 @@ async function getNodeData(node) {
     ).json();
     logger.info(node + ":: " + JSON.stringify(out));
   } catch (e) {
-    logger.error(e.stack);
+    logger.warn(e.stack);
     out = "";
   }
   return out;
