@@ -5,6 +5,25 @@ const fetch = (...args) =>
 const dns = require("dns");
 const dnsPromises = dns.promises;
 const storage = require("node-persist");
+const winston = require("winston")
+
+const myformat = winston.format.combine(
+  winston.format.colorize(),
+  winston.format.timestamp(),
+  winston.format.align(),
+  winston.format.printf(
+    (info) => `${info.timestamp} ${info.level}: ${info.message}`
+  )
+);
+
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console({
+      format: myformat,
+      level: "info",
+    }),
+  ],
+});
 
 var app = express();
 let port = 3001;
@@ -24,7 +43,7 @@ let meshIPMap = {};
 initStorage();
 
 app.get("/", function (req, res) {
-  console.log(req.ipInfo.ip.replace("::ffff:", ""));
+  logger.info(req.ipInfo.ip.replace("::ffff:", "")+ ` ${req.url}`);
   main(res);
 });
 
@@ -34,7 +53,7 @@ app.get("/info/:nodeName", async function (req, res) {
 });
 
 app.listen(port, function () {
-  console.log("Started application on port %d", port);
+  logger.info(`Started application on port ${port}`);
 });
 
 async function initStorage() {
@@ -53,7 +72,7 @@ async function main(res) {
       "http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1"
     )
   ).json();
-  //console.log(jdata)
+  logger.debug(jdata)
   do {
     try {
       odata = await (await load("http://localnode.local.mesh:9090")).json();
@@ -61,7 +80,7 @@ async function main(res) {
       odata = null;
     }
   } while (odata === null);
-  //console.log(odata)
+  logger.debug(odata)
   names = {};
   for (let i = 0; i < jdata.hosts.length; i++) {
     names[jdata.hosts[i].ip] = jdata.hosts[i].name;
@@ -94,8 +113,8 @@ async function main(res) {
     });
   }
 
-  console.table(names);
-  console.table(links);
+  logger.debug(names);
+  logger.debug(links);
 
   // for (let i = 0; i < links.length; i++){
   //   console.log(links[i].from, links[i].to, links[i].pcost);
@@ -124,16 +143,16 @@ async function main(res) {
 async function load(url) {
   let obj = null;
   try {
-    obj = await await fetch(url, { timeout: 10000 });
+    obj = await await fetch(url, { timeout: 3000 });
   } catch (e) {
-    console.log("error");
+    logger.error(e.stack);
   }
-  //console.log(obj);
+  logger.debug(obj);
   return obj;
 }
 
 async function getNodeData(node) {
-  //console.log(node);
+  logger.debug(node);
   try {
     if (node.substr(0, 1) !== "1") {
       node = node + ".local.mesh";
@@ -143,10 +162,10 @@ async function getNodeData(node) {
         "http://" + node + "/cgi-bin/sysinfo.json?services_local=1&link_info=1"
       )
     ).json();
+    logger.info(node + ":: " + JSON.stringify(out));
   } catch (e) {
-    console.log(e);
+    logger.error(e.stack);
     out = "";
   }
-  //console.log(node + ":: " + JSON.stringify(out));
   return out;
 }
