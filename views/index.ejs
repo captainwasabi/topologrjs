@@ -63,13 +63,6 @@
         box-sizing: border-box;
       }
 
-      #in {
-        width: 100%;
-        height: 40px;
-        height: auto;
-        display: none;
-      }
-
       #nodeData {
         width: 100%;
         height: auto;
@@ -96,12 +89,10 @@
       }
 
       #color1 {
-        width: 100%;
+        width: 120px;
         height: 40px;
-        float: left;
-        margin: 10px;
-        margin-top: 15px;
-        display: block;
+        margin: 15px auto;
+        display: none;
       }
     </style>
   </head>
@@ -115,7 +106,7 @@
         </div>
         <hr />
         <div id="nodeName"></div>
-        <div id="in">
+
           <input
             type="color"
             class="color1"
@@ -123,7 +114,7 @@
             id="color1"
             value="#97C2FC"
           />
-        </div>
+
         <div id="nodeData"></div>
       </div>
       <div id="right">
@@ -141,7 +132,6 @@
       var nodecolors = {};
 
       //set up the  the color-picker handler
-      var inColor1 = document.getElementById("in");
       var color1 = document.getElementById("color1");
       color1.addEventListener("input", returnColor);
 
@@ -334,14 +324,15 @@
           if (nodeGroup.length === 0) {
             //single click on background
             //TODO: Change Network Background Color
+            //mynetwork.style.background-color = red;
           } else {
             //clar node info
             document.getElementById("nodeName").innerHTML = "";
-            inColor1.style.display = "none";
+            color1.style.display = "none";
             if (childNode !== undefined && childNode.parentNode !== null) {
               childNode.parentNode.removeChild(childNode);
             }
-            inColor1.style.display = "none";
+            color1.style.display = "none";
             //
             nodePositions = JSON.parse(localStorage.getItem("node-positions"));
             if (nodePositions === null) {
@@ -414,7 +405,7 @@
       }
 
       function colorNode(mydata) {
-        inColor1.style.display = "block";
+        color1.style.display = "block";
         color1.value = "#97C2FC";
         if (nodeColors[mydata.nodes[0]] !== undefined) {
           color1.value = nodeColors[mydata.nodes[0]];
