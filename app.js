@@ -34,7 +34,7 @@ app.use(expressip().getIpInfoMiddleware);
 app.set("view engine", "ejs");
 
 let names = {}; //dict to hold ip addresses & hostnames names[ip] = hostname
-let meshdata = {};
+let meshSSID = "";
 let jdata = {};
 let odata = {};
 let links = [];
@@ -73,6 +73,7 @@ async function main(res) {
     )
   ).json();
   logger.debug(jdata)
+  meshSSID = jdata.meshrf.ssid;
   do {
     try {
       odata = await (await load("http://localnode.local.mesh:9090")).json();
@@ -137,6 +138,7 @@ async function main(res) {
   res.render("index", {
     meshNodes: JSON.stringify(names),
     meshLinks: JSON.stringify(links),
+    meshName: meshSSID
   });
 }
 
