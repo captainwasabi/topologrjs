@@ -147,7 +147,7 @@ async function load(url) {
   try {
     obj = await await fetch(url, { timeout: 3000 });
   } catch (e) {
-    logger.warn(e.stack);
+    logger.warn(`${url} fetch failed:\n ${e.stack}`);
   }
   logger.debug(obj);
   return obj;
@@ -166,7 +166,7 @@ async function getNodeData(node) {
     ).json();
     logger.info(node + ":: " + JSON.stringify(out));
   } catch (e) {
-    logger.warn(e.stack);
+    logger.warn(`${node} info request failed:\n ${e.stack}`);
     out = "";
   }
   return out;
