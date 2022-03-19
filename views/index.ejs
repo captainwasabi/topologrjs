@@ -288,7 +288,7 @@
       async function removeChildren(parent) {
         if (parent !== null) {
           while (parent.childNodes.length > 0) {
-            parent.removeChild(parent.childNodes[0]);
+            parent.childNodes[0].remove();
           }
         }
       }
