@@ -219,6 +219,9 @@
         } else {
           console.log("wtf: ", meshLinks[i]);
         }
+        for (nodeName in nodePositions) {
+          addNode(nodeName);
+        }
       }
 
       //initialize vis.js data structures with nodes and edges

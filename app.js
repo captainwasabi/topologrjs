@@ -5,7 +5,7 @@ const fetch = (...args) =>
 const dns = require("dns");
 const dnsPromises = dns.promises;
 const storage = require("node-persist");
-const winston = require("winston")
+const winston = require("winston");
 
 const myformat = winston.format.combine(
   winston.format.colorize(),
@@ -43,7 +43,7 @@ let meshIPMap = {};
 initStorage();
 
 app.get("/", function (req, res) {
-  logger.http(req.ipInfo.ip.replace("::ffff:", "")+ ` ${req.url}`);
+  logger.http(req.ipInfo.ip.replace("::ffff:", "") + ` ${req.url}`);
   main(res);
 });
 
@@ -68,21 +68,29 @@ async function initStorage() {
 }
 
 async function main(res) {
-  jdata = await (
-    await load(
-      "http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1"
-    )
-  ).json();
-  logger.debug(jdata)
+  do {
+    try {
+      jdata = await (
+        await load(
+          "http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1"
+        )
+      ).json();
+    } catch (e) {
+      jdata = null;
+      logger.error("localnode sysinfo failed to load");
+    }
+  } while (jdata === null);
+  logger.debug(jdata);
   meshSSID = jdata.meshrf.ssid;
   do {
     try {
       odata = await (await load("http://localnode.local.mesh:9090")).json();
     } catch (e) {
       odata = null;
+      logger.error("localnode:9090 filed to load");
     }
   } while (odata === null);
-  logger.debug(odata)
+  logger.debug(odata);
   names = {};
   for (let i = 0; i < jdata.hosts.length; i++) {
     names[jdata.hosts[i].ip] = jdata.hosts[i].name;
@@ -136,17 +144,15 @@ async function main(res) {
   //   }
   // }
   services = {}; //{callsign: {nodeName: [{serviceName: URL}, ...]}}
-  for (let i = 0; (i < jdata.services.length); i++) {
+  for (let i = 0; i < jdata.services.length; i++) {
     let service = jdata.services[i];
     let ip = service.ip;
     let nn = meshIPMap[ip];
     let callsign = nn.substr(0, nn.search("-"));
     let serviceName = service.name;
     let URL = service.link;
-    if (services[callsign] === undefined)
-      services[callsign] = {}
-    if (services[callsign][nn] === undefined)
-      services[callsign][nn] = {}
+    if (services[callsign] === undefined) services[callsign] = {};
+    if (services[callsign][nn] === undefined) services[callsign][nn] = {};
     services[callsign][nn][serviceName] = URL;
   }
 
