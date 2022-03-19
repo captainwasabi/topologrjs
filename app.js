@@ -134,12 +134,26 @@ async function main(res) {
   //     console.log(links[i].to + " found")
   //   }
   // }
+  services = {}; //{callsign: {nodeName: [{serviceName: URL}, ...]}}
+  for (let i = 0; (i < jdata.services.length); i++) {
+    let service = jdata.services[i];
+    let ip = service.ip;
+    let nn = meshIPMap[ip];
+    let callsign = nn.substr(0, nn.search("-"));
+    let serviceName = service.name;
+    let URL = service.link;
+    if (services[callsign] === undefined)
+      services[callsign] = {}
+    if (services[callsign][nn] === undefined)
+      services[callsign][nn] = {}
+    services[callsign][nn][serviceName] = URL;
+  }
 
   res.render("index", {
     meshNodes: JSON.stringify(names),
     meshLinks: JSON.stringify(links),
     meshName: meshSSID,
-    meshServices: JSON.stringify(jdata.services),
+    meshServices: JSON.stringify(services),
   });
 }
 

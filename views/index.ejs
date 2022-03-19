@@ -102,7 +102,7 @@
       <div id="left">
         <div id="logo">
           <img src="Network-icon.png" alt="AREDN-FrontRoyal" />
-          <h2><%= meshName %></h2>
+          <center><h2><%= meshName %></h2></center>
         </div>
         <hr />
         <div id="nodeName"></div>
@@ -269,12 +269,14 @@
 
       loadServices();
       async function loadServices() {
-          let rjson = renderjson(meshServices);
-          if (childNode !== undefined && childNode.parentNode !== null) {
-            childNode.parentNode.removeChild(childNode);
-          }
-          if (rjson.textContent === '""') return;
-          childNode = document.getElementById("nodeData").appendChild(rjson);
+        document.getElementById("nodeName").innerHTML = "<center><h3>Mesh Services Directory</h3></center>";
+        renderjson.set_show_to_level(1);
+        let rjson = renderjson(meshServices);
+        if (childNode !== undefined && childNode.parentNode !== null) {
+          childNode.parentNode.removeChild(childNode);
+        }
+        if (rjson.textContent === '""') return;
+        childNode = document.getElementById("nodeData").appendChild(rjson);
       }
 
       var childNode;
@@ -299,6 +301,7 @@
           } else {
             alert("HTTP-Error: " + response.status);
           }
+          renderjson.set_show_to_level(1)
           let rjson = renderjson(d);
           if (rjson.textContent === '""') return;
           // let txt = `${d.node}<br>lat: ${d.lat} lon: ${d.lon}<br>grid: ${d.grid_square}<br>uptime: ${d.sysinfo.uptime}<ul><li>Services:<ol>`
@@ -333,7 +336,6 @@
       function setColor(mydata) {
         if (mydata.nodes.length === 0) {
           if (nodeGroup.length === 0) {
-            loadServices();
             //single click on background
             //TODO: Change Network Background Color
             //mynetwork.style.background-color = red;
@@ -368,6 +370,7 @@
             };
             network.setData(data);
           }
+          loadServices();
         }
       }
 
