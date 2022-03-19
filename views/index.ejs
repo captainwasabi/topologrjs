@@ -107,13 +107,13 @@
         <hr />
         <div id="nodeName"></div>
 
-          <input
-            type="color"
-            class="color1"
-            name="color1"
-            id="color1"
-            value="#97C2FC"
-          />
+        <input
+          type="color"
+          class="color1"
+          name="color1"
+          id="color1"
+          value="#97C2FC"
+        />
 
         <div id="nodeData"></div>
       </div>
@@ -165,7 +165,9 @@
       //convert codes back to characters
       meshNodes = JSON.parse("<%= meshNodes %>".replace(/\&\#34\;/g, '"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replace(/\&\#34\;/g, '"'));
-      meshServices = JSON.parse("<%= meshServices %>".replace(/\&\#34\;/g, '"'));
+      meshServices = JSON.parse(
+        "<%= meshServices %>".replace(/\&\#34\;/g, '"')
+      );
       console.table(meshLinks);
 
       //get data from local storage if it exists
@@ -248,9 +250,9 @@
       network.on("click", (mydata) => {
         setColor(mydata);
       });
-      network.on("selectNode", (mydata) => {
+      network.on("selectNode", async (mydata) => {
         colorNode(mydata);
-        loadNodeInfo(mydata);
+        await loadNodeInfo(mydata);
       });
 
       document.addEventListener("keydown", function (event) {
@@ -272,28 +274,34 @@
 
       loadServices();
       async function loadServices() {
-        document.getElementById("nodeName").innerHTML = "<center><h3>Mesh Services Directory</h3></center>";
+        await removeChildren(document.getElementById("nodeData"));
+        document.getElementById("nodeName").innerHTML =
+          "<center><h3>Mesh Services Directory</h3></center>";
         renderjson.set_sort_objects(true);
         renderjson.set_show_to_level(1);
         let rjson = renderjson(meshServices);
-        if (childNode !== undefined && childNode.parentNode !== null) {
-          childNode.parentNode.removeChild(childNode);
-        }
         if (rjson.textContent === '""') return;
+        await removeChildren(document.getElementById("nodeData"));
         childNode = document.getElementById("nodeData").appendChild(rjson);
+      }
+
+      async function removeChildren(parent) {
+        if (parent !== null) {
+          while (parent.childNodes.length > 0) {
+            parent.removeChild(parent.childNodes[0]);
+          }
+        }
       }
 
       var childNode;
       async function loadNodeInfo(mydata) {
+        await removeChildren(document.getElementById("nodeData"));
         if (mydata.nodes.length > 0) {
           document.getElementById(
             "nodeName"
           ).innerHTML = `<center><h3>${mydata.nodes[0]}</h3></center>`;
-          if (childNode !== undefined && childNode.parentNode !== null) {
-            childNode.parentNode.removeChild(childNode);
-          }
           var d;
-          //get the URT to open from the vis.js data
+          //get the URL to open from the vis.js data
           let obj = nodeArray.find((o) => o.id === mydata.nodes[0]);
           let response = await fetch(
             "http://" + location.host + "/info/" + mydata.nodes[0]
@@ -303,11 +311,11 @@
             // get the response body (the method explained below)
             d = await response.json();
           } else {
-            alert("HTTP-Error: " + response.status);
+            console.log("HTTP-Error: " + response.status);
           }
-          
+
           renderjson.set_sort_objects(true);
-          renderjson.set_show_to_level(1)
+          renderjson.set_show_to_level(1);
           let rjson = renderjson(d);
           if (rjson.textContent === '""') return;
           // let txt = `${d.node}<br>lat: ${d.lat} lon: ${d.lon}<br>grid: ${d.grid_square}<br>uptime: ${d.sysinfo.uptime}<ul><li>Services:<ol>`
@@ -321,6 +329,8 @@
           // }
           // txt = txt + "</ol></li></ul>"
           //document.getElementById("nodeData").innerHTML = txt;
+
+          await removeChildren(document.getElementById("nodeData"));
           childNode = document.getElementById("nodeData").appendChild(rjson);
         }
       }
@@ -339,7 +349,7 @@
         }
       }
 
-      function setColor(mydata) {
+      async function setColor(mydata) {
         if (mydata.nodes.length === 0) {
           if (nodeGroup.length === 0) {
             //single click on background
@@ -376,7 +386,7 @@
             };
             network.setData(data);
           }
-          loadServices();
+          await loadServices();
         }
       }
 
