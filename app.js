@@ -20,7 +20,7 @@ const logger = winston.createLogger({
   transports: [
     new winston.transports.Console({
       format: myformat,
-      level: "info",
+      level: "http",
     }),
   ],
 });
@@ -43,11 +43,12 @@ let meshIPMap = {};
 initStorage();
 
 app.get("/", function (req, res) {
-  logger.info(req.ipInfo.ip.replace("::ffff:", "")+ ` ${req.url}`);
+  logger.http(req.ipInfo.ip.replace("::ffff:", "")+ ` ${req.url}`);
   main(res);
 });
 
 app.get("/info/:nodeName", async function (req, res) {
+  logger.http(req.ipInfo.ip.replace("::ffff:", "") + ` ${req.url}`);
   var d = await getNodeData(req.params.nodeName);
   return res.json(d);
 });
@@ -179,7 +180,7 @@ async function getNodeData(node) {
         "http://" + node + "/cgi-bin/sysinfo.json?services_local=1&link_info=1"
       )
     ).json();
-    logger.info(node + ":: " + JSON.stringify(out));
+    logger.verbose(node + ":: " + JSON.stringify(out));
   } catch (e) {
     logger.warn(`${node} info request failed:\n ${e.stack}`);
     out = "";

@@ -270,6 +270,7 @@
       loadServices();
       async function loadServices() {
         document.getElementById("nodeName").innerHTML = "<center><h3>Mesh Services Directory</h3></center>";
+        renderjson.set_sort_objects(true);
         renderjson.set_show_to_level(1);
         let rjson = renderjson(meshServices);
         if (childNode !== undefined && childNode.parentNode !== null) {
@@ -301,6 +302,8 @@
           } else {
             alert("HTTP-Error: " + response.status);
           }
+          
+          renderjson.set_sort_objects(true);
           renderjson.set_show_to_level(1)
           let rjson = renderjson(d);
           if (rjson.textContent === '""') return;
