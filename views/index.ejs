@@ -120,7 +120,7 @@
       <div id="right">
         <div
           id="mynetwork"
-          ondrop="dropSettings(event);"
+          ondrop="dragAndDropSettings(event);"
           ondragover="dragover_handler(event)"
         ></div>
       </div>
@@ -133,7 +133,7 @@
 
       //set up the  the color-picker handler
       var color1 = document.getElementById("color1");
-      color1.addEventListener("input", returnColor);
+      color1.addEventListener("input", getCurrentColorFromPicker);
 
       const options = {
         // TODO: Figure out how to throw this up into a side panel, Toggle on/off
@@ -245,10 +245,10 @@
         jump(mydata);
       });
       network.on("dragEnd", (mydata) => {
-        savePos(mydata);
+        onNodeDrop(mydata);
       });
       network.on("click", (mydata) => {
-        setColor(mydata);
+        onClick(mydata);
       });
       network.on("selectNode", async (mydata) => {
         colorNode(mydata);
@@ -348,42 +348,59 @@
         }
       }
 
-      async function setColor(mydata) {
-        if (mydata.nodes.length === 0) {
-          if (nodeGroup.length === 0) {
-            //single click on background
-            //TODO: Change Network Background Color
-            //mynetwork.style.background-color = red;
-          } else {
-            //clar node info
-            document.getElementById("nodeName").innerHTML = "";
-            color1.style.display = "none";
-            await removeChildren(document.getElementById("nodeData"));
-            color1.style.display = "none";
-            nodePositions = JSON.parse(localStorage.getItem("node-positions"));
-            if (nodePositions === null) {
-              nodePositions = {};
-            }
-            for (let i = 0; i < nodeGroup.length; i++) {
-              na = nodeArray.find((n) => n.id === nodeGroup[i].id);
-              na.color = color1.value;
-              if (nodePositions[na.id] !== undefined) {
-                na.x = nodePositions[na.id].x;
-                na.y = nodePositions[na.id].y;
-              }
-              nodeColors[na.id] = color1.value;
-            }
-            localStorage.setItem("node-colors", JSON.stringify(nodeColors));
-            nodeGroup = [];
-            nodes = new vis.DataSet(nodeArray);
-            data = {
-              nodes: nodes,
-              edges: edges,
-            };
-            network.setData(data);
-          }
-          await loadServices();
+      async function clearNodeInfoPanel()
+      {
+        //clear node info
+        document.getElementById("nodeName").innerHTML = "";
+        color1.style.display = "none";
+        await removeChildren(document.getElementById("nodeData"));
+        color1.style.display = "none";
+      }
+
+      function getNodePositionsFromLocalStorage(){
+        let nodePositions = JSON.parse(localStorage.getItem("node-positions"));
+        if (nodePositions === null) {
+          nodePositions = {};
         }
+        return nodePositions;
+      }
+
+      function setNodeGroupColorandStore(){
+        for (let i = 0; i < nodeGroup.length; i++) {
+          na = nodeArray.find((n) => n.id === nodeGroup[i].id);
+          na.color = color1.value;
+          if (nodePositions[na.id] !== undefined) {
+            na.x = nodePositions[na.id].x;
+            na.y = nodePositions[na.id].y;
+          }
+          nodeColors[na.id] = color1.value;
+        }
+        localStorage.setItem("node-colors", JSON.stringify(nodeColors));
+        nodeGroup = []; //clear the node group after the colors have been set and stored
+      }
+
+      function updateVisNetworkNodes(){
+        nodes = new vis.DataSet(nodeArray);
+        data = {
+          nodes: nodes,
+          edges: edges,
+        };
+        network.setData(data);
+      }
+
+      async function onClick(mydata) {
+        if (mydata.nodes.length !== 0) return; //a node was clicked on, don't need to do anything here.
+        if (nodeGroup.length !== 0) { //there was a node selected then a click on the background
+          await clearNodeInfoPanel();
+          nodePositions = getNodePositionsFromLocalStorage();
+          setNodeGroupColorandStore();
+          updateVisNetworkNodes();
+        } else {
+          //single click on background
+          //TODO: Change Network Background Color
+          //mynetwork.style.background-color = red;
+        }
+        await loadServices();
       }
 
       function addNode(node) {
@@ -393,26 +410,26 @@
         if (na === undefined) {
           // if the node has NOT already been added
           let n = node;
-          if (n.substr(0, 1) !== "1") {
+          if (n.substr(0, 1) !== "1") { //if the node name is not 10.x.x.x
             n = n + ".local.mesh";
           }
           let extraOptions = { URL: "http://" + n };
           try {
-            extraOptions = {
+            extraOptions = { //set the node position if it exists already
               ...extraOptions,
               x: nodePositions[node].x,
               y: nodePositions[node].y,
             };
           } catch (e) {}
           try {
-            if (nodeColors[node] !== null) {
+            if (nodeColors[node] !== null) { //set the node color if it exists
               extraOptions = {
                 ...extraOptions,
                 color: nodeColors[node],
               };
             }
           } catch (e) {}
-          nodeArray.push({
+          nodeArray.push({ //push the new data into the nodeArray
             id: node,
             label: node,
             ...extraOptions,
@@ -420,7 +437,11 @@
         }
       }
 
-      function savePos(mydata) {
+      function onNodeDrop(mydata){
+        saveNodePositionsToLocalStorage(mydata);
+      }
+
+      function saveNodePositionsToLocalStorage(mydata) {
         nodePositions = network.getPositions();
         for (let i = 0; i < nodeArray.length; i++) {
           nodeArray[i] = {
@@ -433,29 +454,24 @@
 
       function colorNode(mydata) {
         color1.style.display = "block";
-        color1.value = "#97C2FC";
-        if (nodeColors[mydata.nodes[0]] !== undefined) {
+        color1.value = "#97C2FC"; //default value if nothing has been set before
+        if (nodeColors[mydata.nodes[0]] !== undefined) { //if there is a setting, set it in the picker
           color1.value = nodeColors[mydata.nodes[0]];
         }
-
         selectedNode = mydata.nodes[0];
+        //for all the nodes with the same callsign (nodeName up to the first "-")
         nodeGroup = nodeArray.filter((n) =>
           n.id.startsWith(selectedNode.substr(0, selectedNode.indexOf("-") - 1))
         );
       }
 
-      function returnColor() {
+      function getCurrentColorFromPicker() {
         na = nodeArray.find((n) => n.id === selectedNode);
         na.color = color1.value;
-        nodes = new vis.DataSet(nodeArray);
-        data = {
-          nodes: nodes,
-          edges: edges,
-        };
-        network.setData(data);
+        updateVisNetworkNodes();
       }
 
-      function downloadTextFile(text, name) {
+      function downloadSettingsFile(text, name) {
         const a = document.createElement("a");
         const type = name.split(".").pop();
         a.href = URL.createObjectURL(
@@ -465,7 +481,8 @@
         a.click();
       }
 
-      function dropSettings(event) {
+      function dragAndDropSettings(event) {
+        //prevent the default json file handling(displays the file)
         event.preventDefault();
         const [item] = event.dataTransfer.items;
         console.log(item.getAsFile());
@@ -475,6 +492,7 @@
           console.log(event.target.result);
           try {
             let ds = JSON.parse(event.target.result);
+            //update the nodeArray with the data from the file
             for (let i = 0; i < nodeArray.length; i++) {
               nn = nodeArray[i].id;
               try {
@@ -491,26 +509,22 @@
               }
               console.log(nodeArray[i]);
             }
+            //save new positions to local storage
             localStorage.setItem(
               "node-positions",
               JSON.stringify(ds.nodePositions)
             );
+            //save new colors to local storage
             localStorage.setItem("node-colors", JSON.stringify(ds.nodeColors));
-            nodes = new vis.DataSet(nodeArray);
-
-            data = {
-              nodes: nodes,
-              edges: edges,
-            };
-            network.setData(data);
+            updateVisNetworkNodes();
           } catch (e) {
             console.log(e);
           }
         };
-        reader.readAsText(file);
+        reader.readAsText(file); //start reading the file which triggers reader.onload
       }
 
-      function dragover_handler(event) {
+      function dragover_handler(event) { //required for drag and drop to work
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
       }
