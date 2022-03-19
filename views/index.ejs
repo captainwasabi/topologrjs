@@ -165,6 +165,7 @@
       //convert codes back to characters
       meshNodes = JSON.parse("<%= meshNodes %>".replace(/\&\#34\;/g, '"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replace(/\&\#34\;/g, '"'));
+      meshServices = JSON.parse("<%= meshServices %>".replace(/\&\#34\;/g, '"'));
       console.table(meshLinks);
 
       //get data from local storage if it exists
@@ -266,6 +267,16 @@
         }
       });
 
+      loadServices();
+      async function loadServices() {
+          let rjson = renderjson(meshServices);
+          if (childNode !== undefined && childNode.parentNode !== null) {
+            childNode.parentNode.removeChild(childNode);
+          }
+          if (rjson.textContent === '""') return;
+          childNode = document.getElementById("nodeData").appendChild(rjson);
+      }
+
       var childNode;
       async function loadNodeInfo(mydata) {
         if (mydata.nodes.length > 0) {
@@ -322,6 +333,7 @@
       function setColor(mydata) {
         if (mydata.nodes.length === 0) {
           if (nodeGroup.length === 0) {
+            loadServices();
             //single click on background
             //TODO: Change Network Background Color
             //mynetwork.style.background-color = red;

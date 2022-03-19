@@ -138,7 +138,8 @@ async function main(res) {
   res.render("index", {
     meshNodes: JSON.stringify(names),
     meshLinks: JSON.stringify(links),
-    meshName: meshSSID
+    meshName: meshSSID,
+    meshServices: JSON.stringify(jdata.services),
   });
 }
 
