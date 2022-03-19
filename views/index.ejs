@@ -282,7 +282,7 @@
         let rjson = renderjson(meshServices);
         if (rjson.textContent === '""') return;
         await removeChildren(document.getElementById("nodeData"));
-        childNode = document.getElementById("nodeData").appendChild(rjson);
+        document.getElementById("nodeData").appendChild(rjson);
       }
 
       async function removeChildren(parent) {
@@ -293,7 +293,6 @@
         }
       }
 
-      var childNode;
       async function loadNodeInfo(mydata) {
         await removeChildren(document.getElementById("nodeData"));
         if (mydata.nodes.length > 0) {
@@ -331,7 +330,7 @@
           //document.getElementById("nodeData").innerHTML = txt;
 
           await removeChildren(document.getElementById("nodeData"));
-          childNode = document.getElementById("nodeData").appendChild(rjson);
+          document.getElementById("nodeData").appendChild(rjson);
         }
       }
 
@@ -359,11 +358,8 @@
             //clar node info
             document.getElementById("nodeName").innerHTML = "";
             color1.style.display = "none";
-            if (childNode !== undefined && childNode.parentNode !== null) {
-              childNode.parentNode.removeChild(childNode);
-            }
+            await removeChildren(document.getElementById("nodeData"));
             color1.style.display = "none";
-            //
             nodePositions = JSON.parse(localStorage.getItem("node-positions"));
             if (nodePositions === null) {
               nodePositions = {};
