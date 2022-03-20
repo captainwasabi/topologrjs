@@ -277,6 +277,16 @@
         onKeydown(event);
       });
 
+      window.onerror = 
+        function (msg, source, lineNo, columnNo, error) {
+          log("error","Error: " + msg + 
+                "\nScript: " + source + 
+                "\nLine: " + lineNo + 
+                "\nColumn: " + columnNo + 
+                "\nStackTrace: " + error);
+          return true;
+      };
+
       loadServices();
 
       function onKeydown(event){
