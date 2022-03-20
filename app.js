@@ -19,12 +19,16 @@ const myformat = winston.format.combine(
   )
 );
 
+const transports = {
+  console: new winston.transports.Console({
+    format: myformat,
+    level: "http",
+  }),
+};
+
 const logger = winston.createLogger({
   transports: [
-    new winston.transports.Console({
-      format: myformat,
-      level: "http",
-    }),
+    transports.console,
   ],
 });
 
@@ -49,12 +53,22 @@ app.get("/", function (req, res) {
   logger.http(`server::/info ${ip} ${req.url}`);
   main(req, res);
 });
+
 app.get("/info/:nodeName", async function (req, res) {
   var ip = req.ipInfo.ip.replace("::ffff:", "");
   logger.http(`server::/info ${ip} ${req.url}`);
   var d = await getNodeData(req.params.nodeName);
   return res.json(d);
 });
+
+app.get("/debug/:level", async (req, res) => {
+  var ip = req.ipInfo.ip.replace("::ffff:", "");
+  logger.error(
+    `server::/debug ${ip} ${req.url}: set logging level to ${req.params.level}`
+  );
+  transports.console.level = req.params.level;
+  res.status(201).json(req.params.level);
+}); 
 
 _idCounter = 0
 app.post("/log", (req, res) => {
@@ -69,7 +83,7 @@ app.post("/log", (req, res) => {
     level: log.level, 
     message: `${ip} ${log.id}: ${log.text}`
   });
-  res.status(201).json(log.id);
+  res.status(201).json(transports.console.level);
 });
 
 //variable declarations

@@ -131,9 +131,20 @@
       var serverURL = "http://<%= serverURL %>"
 
 /////////////////////// MyLogger ////////////////////////////////////////////
-
+      let logLevel = {
+        always: -1,
+        error: 0,
+        warn: 1,
+        info: 2,
+        http: 3,
+        verbose: 4,
+        debug: 5,
+        silly: 6
+      }
+      let currentLogLevel = "http";
       let loggerURL = `${serverURL}/log`;
       function log(level, message){
+        if (logLevel[level] > logLevel[currentLogLevel]) return;
         const params = {
             level: level,
             message: JSON.stringify(message),
@@ -146,7 +157,7 @@
         fetch( loggerURL, options )
           .then( response => response.json() )
           .then( response => {
-              //console.log(response);
+              currentLogLevel = response;
           } 
         );
       }
