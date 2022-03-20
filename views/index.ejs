@@ -163,22 +163,15 @@
 
       //data insertion from server
       //convert codes back to characters
-      meshNodes = JSON.parse("<%= meshNodes %>".replace(/\&\#34\;/g, '"'));
       meshLinks = JSON.parse("<%= meshLinks %>".replace(/\&\#34\;/g, '"'));
       meshServices = JSON.parse(
         "<%= meshServices %>".replace(/\&\#34\;/g, '"')
       );
       console.table(meshLinks);
 
-      //get data from local storage if it exists
-      nodePositions = JSON.parse(localStorage.getItem("node-positions"));
-      if (nodePositions === null) {
-        nodePositions = {};
-      }
-      nodeColors = JSON.parse(localStorage.getItem("node-colors"));
-      if (nodeColors === null) {
-        nodeColors = {};
-      }
+      //get position and color data from local storage if it exists
+      nodePositions = getNodePositionsFromLocalStorage();
+      nodeColors = getNodeColorsFromLocalStorage();
 
       var data = {};
       // create an nodes and links array
@@ -234,7 +227,6 @@
         nodes: nodes,
         edges: edges,
       };
-
       var container = document.getElementById("mynetwork");
 
       // create the network
@@ -363,6 +355,14 @@
           nodePositions = {};
         }
         return nodePositions;
+      }
+
+      function getNodeColorsFromLocalStorage(){
+        let nodeColors = JSON.parse(localStorage.getItem("node-colors"));
+        if (nodeColors === null) {
+          nodeColors = {};
+        }
+        return nodeColors;
       }
 
       function setNodeGroupColorandStore(){
