@@ -34,7 +34,7 @@ const logger = winston.createLogger({
 
 //setup express
 var app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001; //3001 is debug port, see pusprod.sh to set PORT
 
 app.use(express.static("assets"));
 app.use(express.static("dist"));
