@@ -1,11 +1,13 @@
 const express = require("express");
 const expressip = require("express-ip");
+const bodyParser = require("body-parser");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const dns = require("dns");
 const dnsPromises = dns.promises;
 const storage = require("node-persist");
 const winston = require("winston");
+
 
 //setup winston logger
 const myformat = winston.format.combine(
@@ -16,6 +18,7 @@ const myformat = winston.format.combine(
     (info) => `${info.timestamp} ${info.level}: ${info.message}`
   )
 );
+
 const logger = winston.createLogger({
   transports: [
     new winston.transports.Console({
@@ -27,25 +30,46 @@ const logger = winston.createLogger({
 
 //setup express
 var app = express();
-let port = 3001;
-app.listen(port, function () {
-  logger.info(`Started application on port ${port}`);
-});
+const PORT = process.env.PORT || 3001;
 
 app.use(express.static("assets"));
 app.use(express.static("dist"));
 app.use(expressip().getIpInfoMiddleware);
+//app.use(bodyParser.json()); // <-- this guy!
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+app.listen(PORT, function () {
+  logger.info(`server:: Started application on port ${PORT}`);
+});
 
 //routes
 app.get("/", function (req, res) {
-  logger.http(req.ipInfo.ip.replace("::ffff:", "") + ` ${req.url}`);
-  main(res);
+  var ip = req.ipInfo.ip.replace("::ffff:", "");
+  logger.http(`server::/info ${ip} ${req.url}`);
+  main(req, res);
 });
 app.get("/info/:nodeName", async function (req, res) {
-  logger.http(req.ipInfo.ip.replace("::ffff:", "") + ` ${req.url}`);
+  var ip = req.ipInfo.ip.replace("::ffff:", "");
+  logger.http(`server::/info ${ip} ${req.url}`);
   var d = await getNodeData(req.params.nodeName);
   return res.json(d);
+});
+
+_idCounter = 0
+app.post("/log", (req, res) => {
+  var ip = req.ipInfo.ip.replace("::ffff:", "");
+  logger.http( ip + ` ${req.url}`);
+  const log = {
+    id: _idCounter++,
+    level: req.body.level,
+    text: req.body.message,
+  };
+  logger.log({
+    level: log.level, 
+    message: `${ip} ${log.id}: ${log.text}`
+  });
+  res.status(201).json(log.id);
 });
 
 //variable declarations
@@ -69,6 +93,7 @@ async function initStorage() {
 }
 
 async function getJsonDataFromURL(URL){
+  logger.debug(`server::getJsonDataFromURL: ${JSON.stringify(URL)}`);
   do {
     try {
       //get local node's sysinfo API data and convert to json object
@@ -79,10 +104,12 @@ async function getJsonDataFromURL(URL){
       ).json();
     } catch (e) {
       data = null;
-      logger.error("localnode sysinfo failed to load");
+      logger.error(
+        "server::getJsonDataFromURL: localnode sysinfo failed to load"
+      );
     }
   } while (data === null); //if there was an error, try again
-  logger.debug(data);
+  logger.debug(`server::getJsonDataFromURL: ${JSON.stringify(data)}`);
   return data;
 }
 
@@ -103,7 +130,7 @@ async function processLinks(data){
       ecost: data.topology[i].tcEdgeCost,
     });
   }
-  logger.debug(links);
+  logger.debug(`server::processLinks: ${JSON.stringify(links)}`);
   return links;
 }
 
@@ -121,7 +148,7 @@ async function processServices(data){
   return services;
 }
 
-async function main(res) {
+async function main(req, res) {
   var jdata = await getJsonDataFromURL(
     "http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1"
   );
@@ -143,6 +170,7 @@ async function main(res) {
     meshLinks: JSON.stringify(links),
     meshName: meshSSID,
     meshServices: JSON.stringify(services),
+    serverURL: req.rawHeaders[1],
   });
 }
 
@@ -164,14 +192,14 @@ async function load(url) {
   try {
     obj = await await fetch(url, { timeout: 3000 }); //why two awaits?  because... that's why
   } catch (e) {
-    logger.warn(`${url} fetch failed:\n ${e.stack}`);
+    logger.warn(`server::load: ${url} fetch failed:\n ${e.stack}`);
   }
-  logger.debug(obj);
+  //logger.debug(`server::load ${JSON.stringify(obj.json())}`);
   return obj;
 }
 
 async function getNodeData(node) {
-  logger.debug(node);
+  logger.debug(`server::getNodeData ${JSON.stringify(node)}`);
   try {
     if (node.substr(0, 3) !== "10.") { //if the nodeName is NOT an ip address 10.x.x.x
       node = node + ".local.mesh";
@@ -181,9 +209,9 @@ async function getNodeData(node) {
         "http://" + node + "/cgi-bin/sysinfo.json?services_local=1&link_info=1"
       )
     ).json();
-    logger.verbose(node + ":: " + JSON.stringify(out));
+    logger.verbose(`server::getNodeData ${node}:: ${JSON.stringify(out)}`);
   } catch (e) {
-    logger.warn(`${node} info request failed:\n ${e.stack}`);
+    logger.warn(`server::getNodeData ${node} info request failed:\n ${e.stack}`);
     out = "";
   }
   return out;

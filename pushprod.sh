@@ -5,6 +5,6 @@ pushd ..
 rsync -a topologrjs/ topologrjs.dist/
 pushd topologrjs.dist
 sed -i 's/3001/3000/' app.js
-nohup node app.js 2>&1 >> topologr.log &
+PORT=3000 nohup node app.js 2>&1 >> topologr.log &
 popd 
 popd 
