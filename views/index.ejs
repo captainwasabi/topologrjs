@@ -130,12 +130,16 @@
       var selectedNode;
       var nodeGroup = [];
       var nodecolors = {};
+      var data = {};
+      // create an nodes and links array
+      let nodeArray = [];
+      var edgeArray = [];
 
       //set up the  the color-picker handler
       var color1 = document.getElementById("color1");
       color1.addEventListener("input", getCurrentColorFromPicker);
 
-      const options = {
+      const visNetworkOptions = {
         // TODO: Figure out how to throw this up into a side panel, Toggle on/off
         // configure: {
         //   enabled: true,
@@ -143,7 +147,6 @@
         //   container: undefined,
         //   showButton: true
         // },
-
         nodes: {
           physics: false,
         },
@@ -172,11 +175,6 @@
       //get position and color data from local storage if it exists
       nodePositions = getNodePositionsFromLocalStorage();
       nodeColors = getNodeColorsFromLocalStorage();
-
-      var data = {};
-      // create an nodes and links array
-      let nodeArray = [];
-      var edgeArray = [];
 
       //process all the topology links
       for (let i = 0; i < meshLinks.length; i++) {
@@ -230,7 +228,7 @@
       var container = document.getElementById("mynetwork");
 
       // create the network
-      var network = new vis.Network(container, data, options);
+      var network = new vis.Network(container, data, visNetworkOptions);
 
       //event handlers
       network.on("doubleClick", (mydata) => {
@@ -248,81 +246,83 @@
       });
 
       document.addEventListener("keydown", function (event) {
-        if (event.ctrlKey && event.key === "Enter") {
-          // Ctrl+Enter
+        onKeydown(event);
+      });
+
+      loadServices();
+
+      function onKeydown(event){
+        if (event.ctrlKey && event.key === "Enter") { // Ctrl+Enter
+          //clear saved positions (but not color)
           localStorage.removeItem("node-positions");
-          location.reload(true);
-        } else if (event.ctrlKey && event.key === "s") {
-          downloadTextFile(
+          location.reload(true); //force reload
+        } else if (event.ctrlKey && event.key === "s") { //Ctrl+s - save settings
+          downloadSettingsFile( //download the position and and color settings into settings.json
             JSON.stringify({
               nodePositions,
               nodeColors,
             }),
             "settings.json"
           );
-          event.preventDefault();
+          event.preventDefault(); //don't let the browser handle the ctrl-s, it'll just save the webpage 
         }
-      });
+      }
 
-      loadServices();
       async function loadServices() {
+        //clear out the contents of the nodeData div
         await removeChildren(document.getElementById("nodeData"));
+        //set the title
         document.getElementById("nodeName").innerHTML =
           "<center><h3>Mesh Services Directory</h3></center>";
+        //render out the meshServices json
         renderjson.set_sort_objects(true);
         renderjson.set_show_to_level(1);
         let rjson = renderjson(meshServices);
-        if (rjson.textContent === '""') return;
-        await removeChildren(document.getElementById("nodeData"));
-        document.getElementById("nodeData").appendChild(rjson);
+        if (rjson.textContent === '""') return; //if there isnt' any json just set it to blank
+        await removeChildren(document.getElementById("nodeData")); //clear it again just in case
+        document.getElementById("nodeData").appendChild(rjson); //add the data to the nodeData div
       }
 
-      async function removeChildren(parent) {
+      async function removeChildren(parent) {  //does what it says
         if (parent !== null) {
           while (parent.childNodes.length > 0) {
-            parent.childNodes[0].remove();
+            parent.childNodes[0].remove(); //keep removeing the first element until the length is 0
           }
         }
       }
 
       async function loadNodeInfo(mydata) {
-        await removeChildren(document.getElementById("nodeData"));
-        if (mydata.nodes.length > 0) {
+        await removeChildren(document.getElementById("nodeData")); //clean out the node data
+        if (mydata.nodes.length > 0) { //if a node was clicked on
+          //set the nodeData title to the node name
           document.getElementById(
             "nodeName"
           ).innerHTML = `<center><h3>${mydata.nodes[0]}</h3></center>`;
-          var d;
+
           //get the URL to open from the vis.js data
           let obj = nodeArray.find((o) => o.id === mydata.nodes[0]);
+          //get the nodeData from the server
           let response = await fetch(
             "http://" + location.host + "/info/" + mydata.nodes[0]
           );
+
+          var data;
           if (response.ok) {
             // if HTTP-status is 200-299
             // get the response body (the method explained below)
-            d = await response.json();
+            data = await response.json();
           } else {
             console.log("HTTP-Error: " + response.status);
           }
 
+          //render the node info json
           renderjson.set_sort_objects(true);
           renderjson.set_show_to_level(1);
-          let rjson = renderjson(d);
+          let rjson = renderjson(data);
           if (rjson.textContent === '""') return;
-          // let txt = `${d.node}<br>lat: ${d.lat} lon: ${d.lon}<br>grid: ${d.grid_square}<br>uptime: ${d.sysinfo.uptime}<ul><li>Services:<ol>`
-          // for (let i = 0; i < d.services_local.length; i++) {
-          //   txt = txt + `<li>${d.services_local[i].name}</li>`
-          // }
-          // txt = txt + "</ol></li></ul><ul><li>Links:<ol>"
-          // for (const ip in d.link_info) {
-          //   if (d.link_info[ip].linkCost > 100) continue;
-          //   txt = txt + `<li>${meshNodes[ip]} - ${d.link_info[ip].linkQuality}</li>`
-          // }
-          // txt = txt + "</ol></li></ul>"
-          //document.getElementById("nodeData").innerHTML = txt;
 
-          await removeChildren(document.getElementById("nodeData"));
-          document.getElementById("nodeData").appendChild(rjson);
+          await removeChildren(document.getElementById("nodeData")); //clean out the nodeData again
+          document.getElementById("nodeData").appendChild(rjson); //insert the rendered json into nodeData div
         }
       }
 
@@ -344,9 +344,8 @@
       {
         //clear node info
         document.getElementById("nodeName").innerHTML = "";
-        color1.style.display = "none";
         await removeChildren(document.getElementById("nodeData"));
-        color1.style.display = "none";
+        color1.style.display = "none"; //hide the color picker
       }
 
       function getNodePositionsFromLocalStorage(){
@@ -366,16 +365,16 @@
       }
 
       function setNodeGroupColorandStore(){
-        for (let i = 0; i < nodeGroup.length; i++) {
-          na = nodeArray.find((n) => n.id === nodeGroup[i].id);
-          na.color = color1.value;
-          if (nodePositions[na.id] !== undefined) {
+        for (let i = 0; i < nodeGroup.length; i++) { //for all the nodes with the callsign
+          na = nodeArray.find((n) => n.id === nodeGroup[i].id); //get the index of the node in nodeArray
+          na.color = color1.value; //set the color from the colorPicker
+          if (nodePositions[na.id] !== undefined) { //if the node has a defined position use it
             na.x = nodePositions[na.id].x;
             na.y = nodePositions[na.id].y;
           }
-          nodeColors[na.id] = color1.value;
+          nodeColors[na.id] = color1.value; //add the color to the nodeColors map
         }
-        localStorage.setItem("node-colors", JSON.stringify(nodeColors));
+        localStorage.setItem("node-colors", JSON.stringify(nodeColors)); //save the nodeColors map to local storage
         nodeGroup = []; //clear the node group after the colors have been set and stored
       }
 
@@ -400,7 +399,7 @@
           //TODO: Change Network Background Color
           //mynetwork.style.background-color = red;
         }
-        await loadServices();
+        await loadServices(); //show the meshServices directory in the data panel
       }
 
       function addNode(node) {
@@ -437,7 +436,7 @@
         }
       }
 
-      function onNodeDrop(mydata){
+      function onNodeDrop(mydata){ //when you reposition a node
         saveNodePositionsToLocalStorage(mydata);
       }
 
@@ -453,25 +452,25 @@
       }
 
       function colorNode(mydata) {
-        color1.style.display = "block";
+        color1.style.display = "block"; //show the color picker
         color1.value = "#97C2FC"; //default value if nothing has been set before
         if (nodeColors[mydata.nodes[0]] !== undefined) { //if there is a setting, set it in the picker
           color1.value = nodeColors[mydata.nodes[0]];
         }
         selectedNode = mydata.nodes[0];
-        //for all the nodes with the same callsign (nodeName up to the first "-")
+        //for all the nodes with the same callsign (nodeName up to the first "-") put them inthe nodeGroup array
         nodeGroup = nodeArray.filter((n) =>
           n.id.startsWith(selectedNode.substr(0, selectedNode.indexOf("-") - 1))
         );
       }
 
       function getCurrentColorFromPicker() {
-        na = nodeArray.find((n) => n.id === selectedNode);
-        na.color = color1.value;
-        updateVisNetworkNodes();
+        na = nodeArray.find((n) => n.id === selectedNode); //get the index of the selected node in nodeArray
+        na.color = color1.value; //set the color of the selected node to the color from the colorpicker
+        updateVisNetworkNodes(); //redraw the network
       }
 
-      function downloadSettingsFile(text, name) {
+      function downloadSettingsFile(text, name) { //because StackOverflow said (I think)
         const a = document.createElement("a");
         const type = name.split(".").pop();
         a.href = URL.createObjectURL(
