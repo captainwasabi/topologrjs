@@ -9,6 +9,7 @@ Comments, criticizms, and especialy pull-requests are also gratefully accepted. 
 This work is released to the public domain with the unlicense.  For the legalities
 see the LICENSE file in this repository.
 
+Contents:
 - [topologrjs](#topologrjs)
   - [Installation](#installation)
   - [Usage](#usage)
