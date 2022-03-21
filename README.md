@@ -61,7 +61,7 @@ see the LICENSE file in this repository.
 
 Aim your  web browser at `http://<ip>:<port>` where \<ip> is the address of the system running topologer and \<port> is the port it's listening to. Likely 3000 or 3001.  For instance `http://192.168.1.156:3000`
 
-The first time you load the mesh the system will do a pretty bad job of laying out the nodes.  If you reload the page it willgenerate a new layout.
+The first time you load the mesh the system will do a pretty bad job of laying out the nodes.  If you reload the page it will generate a new layout.
 
 ### The Data Panel
 
