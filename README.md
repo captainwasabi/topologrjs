@@ -55,7 +55,7 @@ Usage
 * When you click on a node, information about that node is displayed in the Data pane. The node name is displayed under the Mesh
   SSID and the node's information is displayed below that in the json explorer format.  In between those two is a color block.
 * Clicking in the color block brings up a color picker.  As you move around in the color space, or use the slider, or type in the
-  RGB/HSV/etc values you will see the selected node's color change.  If you then click onto the network background it sets the color
+  RGB/HSL/etc values you will see the selected node's color change.  If you then click onto the network background it sets the color
   of ALL the nodes whose names begin with the same callsign to be the same color.
 * When you reload the page it remembers the colors that have been set.
 * To save the position and color settings, click in the network panel background and hit CTRL-s.  This will download a settings.json
