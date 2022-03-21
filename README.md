@@ -77,7 +77,7 @@ Usage
 * Scrolling the mouse wheel over the network panel zooms in and out.
 * If your browser is running on a mesh connected computer, double-clicking the primary mouse button opens the node's web page in a
   new tab.  If you are behind the mesh connected computer the tab opens but it fails to load.
-* If the a selected node is running a version of the AreDN firmware that predates the json api's that are being used then only the
+* If the a selected node is running a version of the AREDN firmware (https://arednmesh.org) that predates the json api's that are being used then only the
   node name and the color will be displayed in the data panel.  Try to get the node's owner to upgrade their node to the latest
   firmware.
   
