@@ -9,6 +9,13 @@ Comments, criticizms, and especialy pull-requests are also gratefully accepted. 
 This work is released to the public domain with the unlicense.  For the legalities
 see the LICENSE file in this repository.
 
+- [topologrjs](#topologrjs)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [The Basics](#the-basics)
+    - [The Data Panel](#the-data-panel)
+    - [The Network Panel](#the-network-panel)
+
 ## Installation
 
 1. Clean updated install of Ubuntu 20.04 or raspbian
