@@ -2,6 +2,8 @@
 
 Topologr is a topology mapper and mesh data explorer for an AREDN mesh network.
 
+<img src="resources/Topologr.png" width="450">
+
 This is my first time programming javascript and node.  I learned a lot, but I am sure there are many things which an experienced node.js programmer would do differently.  One requirement I had was that nothing could be loaded from the internet at runtime on the server or the browser.  The second was that I tried to keep page loading time to the browser as fast as possible by keeping everything I could in just one source file. It ends up that was meaningless because the real bottleneck is pulling the data from the mesh.
 
 Comments, criticizms, and especialy pull-requests are also gratefully accepted. (I'm not normally a github user much so I'll have to figure that one out when it happens.)
