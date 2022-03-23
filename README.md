@@ -103,7 +103,7 @@ Hovering the mouse over a link shows a tooltip with the link's routing cost.  Th
 
 Scrolling the mouse wheel over the network panel zooms in and out.
 
-*If a selected node is running a version of the AreDN firmware that predates the json api's that are being used then only the node name and the color will be displayed in the data panel. Try to get the node's owner to upgrade their node to the latest firmware.*
+*If a selected node is running a version of the AREDN firmware that predates the json api's that are being used then only the node name and the color will be displayed in the data panel. Try to get the node's owner to upgrade their node to the latest firmware.*
 
 If you have issues please enter them in the issues section of this github repository `https://github.com/captainwasabi/topologrjs/issues`
 
