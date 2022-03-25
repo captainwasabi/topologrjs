@@ -65,7 +65,7 @@
 
       #nodeData {
         width: 100%;
-        height: auto;
+        height: 79%;
         max-height: 82%;
         border: 1px solid #d3d3d3;
         box-sizing: border-box;
@@ -93,6 +93,10 @@
         height: 40px;
         margin: 15px auto;
         display: none;
+      }
+
+      ul {
+        list-style-type: none;
       }
     </style>
   </head>
@@ -127,10 +131,9 @@
     </div>
 
     <script type="text/javascript">
+      var serverURL = "http://<%= serverURL %>";
 
-      var serverURL = "http://<%= serverURL %>"
-
-/////////////////////// MyLogger ////////////////////////////////////////////
+      /////////////////////// MyLogger ////////////////////////////////////////////
       let logLevel = {
         always: -1,
         error: 0,
@@ -139,32 +142,31 @@
         http: 3,
         verbose: 4,
         debug: 5,
-        silly: 6
-      }
+        silly: 6,
+      };
       let currentLogLevel = "http";
       let loggerURL = `${serverURL}/log`;
-      function log(level, message){
+      function log(level, message) {
         if (logLevel[level] > logLevel[currentLogLevel]) return;
         const params = {
-            level: level,
-            message: JSON.stringify(message),
+          level: level,
+          message: JSON.stringify(message),
         };
         const options = {
-            method: 'POST',
-            headers: new Headers({'content-type': 'application/json'}),
-            body: JSON.stringify( params )  
+          method: "POST",
+          headers: new Headers({ "content-type": "application/json" }),
+          body: JSON.stringify(params),
         };
-        fetch( loggerURL, options )
-          .then( response => response.json() )
-          .then( response => {
-              currentLogLevel = response;
-          } 
-        );
+        fetch(loggerURL, options)
+          .then((response) => response.json())
+          .then((response) => {
+            currentLogLevel = response;
+          });
       }
 
-///////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////
 
-
+      var allSpan = [];
 
       var selectedNode;
       var nodeGroup = [];
@@ -210,7 +212,7 @@
         "<%= meshServices %>".replace(/\&\#34\;/g, '"')
       );
 
-      log("debug",meshLinks);
+      log("debug", meshLinks);
 
       //get position and color data from local storage if it exists
       nodePositions = getNodePositionsFromLocalStorage();
@@ -288,32 +290,42 @@
         onKeydown(event);
       });
 
-      window.onerror = 
-        function (msg, source, lineNo, columnNo, error) {
-          log("error","Error: " + msg + 
-                "\nScript: " + source + 
-                "\nLine: " + lineNo + 
-                "\nColumn: " + columnNo + 
-                "\nStackTrace: " + error);
-          return true;
+      window.onerror = function (msg, source, lineNo, columnNo, error) {
+        log(
+          "error",
+          "Error: " +
+            msg +
+            "\nScript: " +
+            source +
+            "\nLine: " +
+            lineNo +
+            "\nColumn: " +
+            columnNo +
+            "\nStackTrace: " +
+            error
+        );
+        return true;
       };
 
       loadServices();
 
-      function onKeydown(event){
-        if (event.ctrlKey && event.key === "Enter") { // Ctrl+Enter
+      function onKeydown(event) {
+        if (event.ctrlKey && event.key === "Enter") {
+          // Ctrl+Enter
           //clear saved positions (but not color)
           localStorage.removeItem("node-positions");
           location.reload(true); //force reload
-        } else if (event.ctrlKey && event.key === "s") { //Ctrl+s - save settings
-          downloadSettingsFile( //download the position and and color settings into settings.json
+        } else if (event.ctrlKey && event.key === "s") {
+          //Ctrl+s - save settings
+          downloadSettingsFile(
+            //download the position and and color settings into settings.json
             JSON.stringify({
               nodePositions,
               nodeColors,
             }),
             "settings.json"
           );
-          event.preventDefault(); //don't let the browser handle the ctrl-s, it'll just save the webpage 
+          event.preventDefault(); //don't let the browser handle the ctrl-s, it'll just save the webpage
         }
       }
 
@@ -324,15 +336,55 @@
         document.getElementById("nodeName").innerHTML =
           "<center><h3>Mesh Services Directory</h3></center>";
         //render out the meshServices json
-        renderjson.set_sort_objects(true);
-        renderjson.set_show_to_level(1);
-        let rjson = renderjson(meshServices);
-        if (rjson.textContent === '""') return; //if there isnt' any json just set it to blank
+        outJson = {};
+        rjson = "";
+        for (callsign in meshServices) {
+          outJson[callsign] = {};
+          rjson += `<li><span>${callsign}</span><ul>`;
+          for (nodeName in meshServices[callsign]) {
+            outJson[callsign][nodeName] = [];
+            rjson += `<li>${nodeName}</li><ul>`;
+            for (service in meshServices[callsign][nodeName]) {
+              let txt = `<li><a href="${meshServices[callsign][nodeName][service]}"">${service}</a></li>`;
+              outJson[callsign][nodeName].push(txt);
+              rjson += txt;
+              //console.log(service)
+            }
+            rjson += "</ul>";
+          }
+          rjson += "</ul></li>";
+        }
+        //renderjson.set_sort_objects(true);
+        //renderjson.set_show_to_level(1);
+        //let rjson = renderjson(outJson);
+        //if (rjson.textContent === '""') return; //if there isnt' any json just set it to blank
         await removeChildren(document.getElementById("nodeData")); //clear it again just in case
-        document.getElementById("nodeData").appendChild(rjson); //add the data to the nodeData div
+        document.getElementById("nodeData").innerHTML = rjson; // appendChild(rjson); //add the data to the nodeData div
+        allSpan = document.getElementsByTagName("span");
+        for (var x = 0; x < allSpan.length; x++) {
+          //allSpan[x].style.display="none";
+          var childList = allSpan[x].parentNode.getElementsByTagName("li");
+          for (var y = 0; y < childList.length; y++) {
+            childList[y].style.display = "none";
+          }
+          allSpan[x].onclick = function () {
+            if (this.parentNode) {
+              var childList = this.parentNode.getElementsByTagName("li");
+              for (var y = 0; y < childList.length; y++) {
+                var currentState = childList[y].style.display;
+                if (currentState == "none") {
+                  childList[y].style.display = "block";
+                } else {
+                  childList[y].style.display = "none";
+                }
+              }
+            }
+          };
+        }
       }
 
-      async function removeChildren(parent) {  //does what it says
+      async function removeChildren(parent) {
+        //does what it says
         if (parent !== null) {
           while (parent.childNodes.length > 0) {
             parent.childNodes[0].remove(); //keep removeing the first element until the length is 0
@@ -342,7 +394,8 @@
 
       async function loadNodeInfo(mydata) {
         await removeChildren(document.getElementById("nodeData")); //clean out the node data
-        if (mydata.nodes.length > 0) { //if a node was clicked on
+        if (mydata.nodes.length > 0) {
+          //if a node was clicked on
           //set the nodeData title to the node name
           document.getElementById(
             "nodeName"
@@ -361,7 +414,7 @@
             // get the response body (the method explained below)
             data = await response.json();
           } else {
-            log("http",`HTTP-Error: ${response.status}`);
+            log("http", `HTTP-Error: ${response.status}`);
           }
 
           //render the node info json
@@ -377,7 +430,7 @@
 
       //doubleclick event
       function jump(mydata) {
-        log("debug",mydata);
+        log("debug", mydata);
         //if an node was double clicked
         if (mydata.nodes.length > 0) {
           //get the URT to open from the vis.js data
@@ -389,15 +442,14 @@
         }
       }
 
-      async function clearNodeInfoPanel()
-      {
+      async function clearNodeInfoPanel() {
         //clear node info
         document.getElementById("nodeName").innerHTML = "";
         await removeChildren(document.getElementById("nodeData"));
         color1.style.display = "none"; //hide the color picker
       }
 
-      function getNodePositionsFromLocalStorage(){
+      function getNodePositionsFromLocalStorage() {
         let nodePositions = JSON.parse(localStorage.getItem("node-positions"));
         if (nodePositions === null) {
           nodePositions = {};
@@ -405,7 +457,7 @@
         return nodePositions;
       }
 
-      function getNodeColorsFromLocalStorage(){
+      function getNodeColorsFromLocalStorage() {
         let nodeColors = JSON.parse(localStorage.getItem("node-colors"));
         if (nodeColors === null) {
           nodeColors = {};
@@ -413,11 +465,13 @@
         return nodeColors;
       }
 
-      function setNodeGroupColorandStore(){
-        for (let i = 0; i < nodeGroup.length; i++) { //for all the nodes with the callsign
+      function setNodeGroupColorandStore() {
+        for (let i = 0; i < nodeGroup.length; i++) {
+          //for all the nodes with the callsign
           na = nodeArray.find((n) => n.id === nodeGroup[i].id); //get the index of the node in nodeArray
           na.color = color1.value; //set the color from the colorPicker
-          if (nodePositions[na.id] !== undefined) { //if the node has a defined position use it
+          if (nodePositions[na.id] !== undefined) {
+            //if the node has a defined position use it
             na.x = nodePositions[na.id].x;
             na.y = nodePositions[na.id].y;
           }
@@ -427,7 +481,7 @@
         nodeGroup = []; //clear the node group after the colors have been set and stored
       }
 
-      function updateVisNetworkNodes(){
+      function updateVisNetworkNodes() {
         nodes = new vis.DataSet(nodeArray);
         data = {
           nodes: nodes,
@@ -438,7 +492,8 @@
 
       async function onClick(mydata) {
         if (mydata.nodes.length !== 0) return; //a node was clicked on, don't need to do anything here.
-        if (nodeGroup.length !== 0) { //there was a node selected then a click on the background
+        if (nodeGroup.length !== 0) {
+          //there was a node selected then a click on the background
           await clearNodeInfoPanel();
           nodePositions = getNodePositionsFromLocalStorage();
           setNodeGroupColorandStore();
@@ -458,26 +513,30 @@
         if (na === undefined) {
           // if the node has NOT already been added
           let n = node;
-          if (n.substr(0, 1) !== "1") { //if the node name is not 10.x.x.x
+          if (n.substr(0, 1) !== "1") {
+            //if the node name is not 10.x.x.x
             n = n + ".local.mesh";
           }
           let extraOptions = { URL: "http://" + n };
           try {
-            extraOptions = { //set the node position if it exists already
+            extraOptions = {
+              //set the node position if it exists already
               ...extraOptions,
               x: nodePositions[node].x,
               y: nodePositions[node].y,
             };
           } catch (e) {}
           try {
-            if (nodeColors[node] !== null) { //set the node color if it exists
+            if (nodeColors[node] !== null) {
+              //set the node color if it exists
               extraOptions = {
                 ...extraOptions,
                 color: nodeColors[node],
               };
             }
           } catch (e) {}
-          nodeArray.push({ //push the new data into the nodeArray
+          nodeArray.push({
+            //push the new data into the nodeArray
             id: node,
             label: node,
             ...extraOptions,
@@ -485,7 +544,8 @@
         }
       }
 
-      function onNodeDrop(mydata){ //when you reposition a node
+      function onNodeDrop(mydata) {
+        //when you reposition a node
         saveNodePositionsToLocalStorage(mydata);
       }
 
@@ -503,7 +563,8 @@
       function colorNode(mydata) {
         color1.style.display = "block"; //show the color picker
         color1.value = "#97C2FC"; //default value if nothing has been set before
-        if (nodeColors[mydata.nodes[0]] !== undefined) { //if there is a setting, set it in the picker
+        if (nodeColors[mydata.nodes[0]] !== undefined) {
+          //if there is a setting, set it in the picker
           color1.value = nodeColors[mydata.nodes[0]];
         }
         selectedNode = mydata.nodes[0];
@@ -519,7 +580,8 @@
         updateVisNetworkNodes(); //redraw the network
       }
 
-      function downloadSettingsFile(text, name) { //because StackOverflow said (I think)
+      function downloadSettingsFile(text, name) {
+        //because StackOverflow said (I think)
         const a = document.createElement("a");
         const type = name.split(".").pop();
         a.href = URL.createObjectURL(
@@ -533,11 +595,11 @@
         //prevent the default json file handling(displays the file)
         event.preventDefault();
         const [item] = event.dataTransfer.items;
-        log("debug",item.getAsFile());
+        log("debug", item.getAsFile());
         var file = event.dataTransfer.files[0],
           reader = new FileReader();
         reader.onload = function (event) {
-          log("debug",event.target.result);
+          log("debug", event.target.result);
           try {
             let ds = JSON.parse(event.target.result);
             //update the nodeArray with the data from the file
@@ -566,13 +628,14 @@
             localStorage.setItem("node-colors", JSON.stringify(ds.nodeColors));
             updateVisNetworkNodes();
           } catch (e) {
-            log("warn",e);
+            log("warn", e);
           }
         };
         reader.readAsText(file); //start reading the file which triggers reader.onload
       }
 
-      function dragover_handler(event) { //required for drag and drop to work
+      function dragover_handler(event) {
+        //required for drag and drop to work
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
       }
