@@ -345,10 +345,12 @@
             outJson[callsign][nodeName] = [];
             rjson += `<li>${nodeName}</li><ul>`;
             for (service in meshServices[callsign][nodeName]) {
-              let txt = `<li><a href="${meshServices[callsign][nodeName][service]}"">${service}</a></li>`;
-              outJson[callsign][nodeName].push(txt);
-              rjson += txt;
-              //console.log(service)
+              if (meshServices[callsign][nodeName][service]){
+                let txt = `<li><a href="${meshServices[callsign][nodeName][service]}">${service}</a></li>`;
+                outJson[callsign][nodeName].push(txt);
+                rjson += txt;
+                //console.log(service)
+              }
             }
             rjson += "</ul>";
           }
