@@ -332,6 +332,10 @@
         }
       }
 
+      function sortObjectByKeys(o) {
+          return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
+      }
+
       async function loadServices() {
         //clear out the contents of the nodeData div
         await removeChildren(document.getElementById("nodeData"));
@@ -339,15 +343,18 @@
         document.getElementById("nodeName").innerHTML =
           "<center><h3>Mesh Services Directory</h3></center>";
         //render out the meshServices json
+        let sortedCalls = sortObjectByKeys(meshServices);
         rjson = "";
-        for (callsign in meshServices) {
+        for (callsign in sortedCalls) {
           rjson += `<li><span>${callsign}</span><ul>`;
-          for (nodeName in meshServices[callsign]) {
-            rjson += `<li>${nodeName}</li><ul>`;
-            for (service in meshServices[callsign][nodeName]) {
+          let sortedNodes = sortObjectByKeys(sortedCalls[callsign])
+          for (nodeName in sortedNodes) {
+            rjson += `<li>${nodeName}</li><ul>`;44
+            let sortedServices = sortObjectByKeys(sortedNodes[nodeName])
+            for (service in sortedServices) {
               let txt = "";
-              if (meshServices[callsign][nodeName][service]){
-                txt = `<li><a href="${meshServices[callsign][nodeName][service]}">${service}</a></li>`;
+              if (sortedServices[service]){
+                txt = `<li><a href="${sortedServices[service]}">${service}</a></li>`;
               }
               else{
                 txt = `<li>${service}</li>`;
