@@ -120,6 +120,9 @@
         />
 
         <div id="nodeData"></div>
+        <div id="topologrinfo">
+          <a href="https://github.com/captainwasabi/topologrjs">Topologr v0.1b2</a><br>
+        </div>
       </div>
       <div id="right">
         <div
@@ -336,35 +339,29 @@
         document.getElementById("nodeName").innerHTML =
           "<center><h3>Mesh Services Directory</h3></center>";
         //render out the meshServices json
-        outJson = {};
         rjson = "";
         for (callsign in meshServices) {
-          outJson[callsign] = {};
           rjson += `<li><span>${callsign}</span><ul>`;
           for (nodeName in meshServices[callsign]) {
-            outJson[callsign][nodeName] = [];
             rjson += `<li>${nodeName}</li><ul>`;
             for (service in meshServices[callsign][nodeName]) {
+              let txt = "";
               if (meshServices[callsign][nodeName][service]){
-                let txt = `<li><a href="${meshServices[callsign][nodeName][service]}">${service}</a></li>`;
-                outJson[callsign][nodeName].push(txt);
-                rjson += txt;
-                //console.log(service)
+                txt = `<li><a href="${meshServices[callsign][nodeName][service]}">${service}</a></li>`;
               }
+              else{
+                txt = `<li>${service}</li>`;
+              }
+              rjson += txt;
             }
             rjson += "</ul>";
           }
           rjson += "</ul></li>";
         }
-        //renderjson.set_sort_objects(true);
-        //renderjson.set_show_to_level(1);
-        //let rjson = renderjson(outJson);
-        //if (rjson.textContent === '""') return; //if there isnt' any json just set it to blank
         await removeChildren(document.getElementById("nodeData")); //clear it again just in case
         document.getElementById("nodeData").innerHTML = rjson; // appendChild(rjson); //add the data to the nodeData div
         allSpan = document.getElementsByTagName("span");
         for (var x = 0; x < allSpan.length; x++) {
-          //allSpan[x].style.display="none";
           var childList = allSpan[x].parentNode.getElementsByTagName("li");
           for (var y = 0; y < childList.length; y++) {
             childList[y].style.display = "none";
