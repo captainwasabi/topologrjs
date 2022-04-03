@@ -7,85 +7,64 @@
     <script src="renderjson.js"></script>
 
     <style type="text/css">
-      body,
-      html {
-        font: 10pt sans;
-        line-height: 1.5em;
-        width: 100%;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        color: #4d4d4d;
+
+     /* * {
+        border: 1px solid red;
         box-sizing: border-box;
+      } */
+
+      .container {
+        display: grid; 
+        gap: 0px 0px; 
+        grid-template-areas: 
+          "logo ssid none"
+          "info network toolbar"
+          "footer buttons footerlogo"; 
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 99vw;
+        height: 99vh;
+        max-height: 990vh;
+      }
+
+      .logo { 
+        grid-area: logo;
+        align-self: center;
+      }
+
+      .info {
+        grid-area: info; 
         overflow: hidden;
       }
 
-      #contents {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        position: relative;
+
+      .network { 
+        grid-area: network; 
+        height: 99%;
+        max-height: 99%;
       }
 
-      #left,
-      #right {
-        position: absolute;
-        width: 50%;
-        height: 100%;
-        margin: 0;
-        padding: 10px;
-        box-sizing: border-box;
-        display: inline-block;
+      .ssid { 
+        grid-area: ssid; 
+        align-self: center;
       }
 
-      #left {
-        width: 30%;
-        height: 100%;
-        top: 0;
-        left: 0;
+      .toolbar { grid-area: toolbar; }
+
+      .buttons { 
+        grid-area: buttons; 
+        align-self: end;
       }
 
-      #right {
-        width: 70%;
-        top: 0;
-        right: 0;
+      .footer { 
+        grid-area: footer;
+        align-self: end; 
       }
 
-      #error {
-        color: red;
-      }
-
-      #mynetwork {
-        /*width: 100%;*/
-        height: 100%;
-        border: 1px solid #d3d3d3;
-        box-sizing: border-box;
-      }
-
-      #nodeData {
-        width: 100%;
-        height: auto;
-        max-height: 76%;
-        border: 1px solid #d3d3d3;
-        box-sizing: border-box;
-        overflow: auto;
-      }
-
-      #page {
-        height: auto;
-        width: auto;
-      }
-
-      #logo {
-        margin: 0 auto;
-      }
-
-      img {
-        width: 128px;
-        height: 128px;
-        object-fit: cover;
-        float: left;
+      .footerlogo { 
+        grid-area: footerlogo; 
+        align-self: end;
       }
 
       #color1 {
@@ -95,22 +74,41 @@
         display: none;
       }
 
-      ul {
-        list-style-type: none;
+      img {
+        width: 96px;
+        height: 96px;
       }
+
+      #nodeData {
+        width: 256px;
+        max-width: 256px;
+        min-width: 256px;
+        max-height: 90%;
+        min-height: 90%;
+        height: 90%;
+/*         border: 1px solid #d3d3d3;
+        box-sizing: border-box; */
+        overflow: auto;
+      }
+
+      #mynetwork {
+        /*width: 100%;*/
+        height: 100%;
+        border: 1px solid #d3d3d3;
+        box-sizing: border-box;
+      }
+
     </style>
   </head>
 
   <body>
-    <div id="contents">
-      <div id="left">
-        <div id="logo">
-          <img src="Network-icon.png" alt="AREDN-FrontRoyal" />
-          <center><h2><%= meshName %></h2></center>
-        </div>
-        <hr />
-        <div id="nodeName"></div>
 
+    <div class="container">
+      <div class="logo">
+        <img src="Network-icon.png" alt="AREDN-FrontRoyal" />
+      </div>
+      <div class="info">
+        <div id="nodeName"></div>
         <input
           type="color"
           class="color1"
@@ -118,20 +116,25 @@
           id="color1"
           value="#97C2FC"
         />
-
-        <div id="nodeData"></div>
-        <div id="topologrinfo">
-          <a href="https://github.com/captainwasabi/topologrjs">Topologr v0.1b2</a><br>
-        </div>
+        <div id="nodeData" ></div>
       </div>
-      <div id="right">
-        <div
-          id="mynetwork"
-          ondrop="dragAndDropSettings(event);"
-          ondragover="dragover_handler(event)"
-        ></div>
+      <div class="network" >
+        <div id="mynetwork"
+        ondrop="dragAndDropSettings(event);"
+        ondragover="dragover_handler(event)"
+        ></div>        
+      </div>
+      <div class="ssid">
+        <center><h2><%= meshName %></h2></center>
+      </div>
+      <div class="toolbar"></div>
+      <div class="buttons"></div>
+      <div class="footer"></div>
+      <div class="footerlogo">
+        <a href="https://github.com/captainwasabi/topologrjs">Topologr v0.1b2</a>
       </div>
     </div>
+
 
     <script type="text/javascript">
       var serverURL = "http://<%= serverURL %>";
@@ -349,7 +352,7 @@
           rjson += `<li><span>${callsign}</span><ul>`;
           let sortedNodes = sortObjectByKeys(sortedCalls[callsign])
           for (nodeName in sortedNodes) {
-            rjson += `<li>${nodeName}</li><ul>`;44
+            rjson += `<li>${nodeName}</li><ul>`;
             let sortedServices = sortObjectByKeys(sortedNodes[nodeName])
             for (service in sortedServices) {
               let txt = "";
@@ -405,7 +408,7 @@
           //set the nodeData title to the node name
           document.getElementById(
             "nodeName"
-          ).innerHTML = `<center><h3>${mydata.nodes[0]}</h3></center>`;
+          ).innerHTML = `<h3>${mydata.nodes[0]}</h3>`;
 
           //get the URL to open from the vis.js data
           let obj = nodeArray.find((o) => o.id === mydata.nodes[0]);
