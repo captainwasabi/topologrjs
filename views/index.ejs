@@ -7,21 +7,115 @@
     <script src="renderjson.js"></script>
 
     <style type="text/css">
-
-     /* * {
+      /* * {
         border: 1px solid red;
         box-sizing: border-box;
       } */
 
+      /*body {
+        background: rgb(56, 56, 56);
+      }*/
 
+      /* CSS */
+      .button-14 {
+        background-image: linear-gradient(#f7f8fa, #e7e9ec);
+        border-color: #adb1b8 #a2a6ac #8d9096;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 3px;
+        box-shadow: rgba(255, 255, 255, 0.6) 0 1px 0 inset;
+        box-sizing: border-box;
+        color: #0f1111;
+        cursor: pointer;
+        display: inline-block;
+        font-family: "Amazon Ember", Arial, sans-serif;
+        font-size: 14px;
+        height: 29px;
+        font-size: 13px;
+        outline: 0;
+        overflow: hidden;
+        padding: 0 11px;
+        text-align: center;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        white-space: nowrap;
+      }
+
+      .button-14:active {
+        border-bottom-color: #a2a6ac;
+      }
+
+      .button-14:active:hover {
+        border-bottom-color: #a2a6ac;
+      }
+
+      .button-14:hover {
+        border-color: #a2a6ac #979aa1 #82858a;
+      }
+
+      .button-14:focus {
+        border-color: #e77600;
+        box-shadow: rgba(228, 121, 17, 0.5) 0 0 3px 2px;
+        outline: 0;
+      }
+
+      /* CSS */
+      .button-5 {
+        align-items: center;
+        background-clip: padding-box;
+        background-color: #1e00c8;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+        box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+        box-sizing: border-box;
+        color: #fff;
+        cursor: pointer;
+        display: inline-flex;
+        font-family: system-ui, -apple-system, system-ui, "Helvetica Neue",
+          Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        justify-content: center;
+        line-height: 0.5;
+        margin: 0;
+        min-height: 2rem;
+        /*padding: calc(.875rem - 1px) calc(1.5rem - 1px);*/
+        position: relative;
+        text-decoration: none;
+        transition: all 250ms;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        vertical-align: baseline;
+        width: auto;
+      }
+
+      .button-5:hover,
+      .button-5:focus {
+        background-color: #351bca;
+        box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+      }
+
+      .button-5:hover {
+        transform: translateY(-1px);
+      }
+
+      .button-5:active {
+        background-color: #796cc7;
+        box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+        transform: translateY(0);
+      }
 
       .container {
-        display: grid; 
-        gap: 0px 0px; 
-        grid-template-areas: 
+        display: grid;
+        gap: 0px 0px;
+        grid-template-areas:
           "logo ssid none"
           "info network toolbar"
-          "footer buttons footerlogo"; 
+          "footer buttons footerlogo";
         position: absolute;
         left: 0;
         top: 0;
@@ -30,41 +124,43 @@
         max-height: 990vh;
       }
 
-      .logo { 
+      .logo {
         grid-area: logo;
         align-self: center;
       }
 
       .info {
-        grid-area: info; 
+        grid-area: info;
         overflow: hidden;
       }
 
-      .network { 
-        grid-area: network; 
+      .network {
+        grid-area: network;
         height: 99%;
         max-height: 99%;
       }
 
-      .ssid { 
-        grid-area: ssid; 
+      .ssid {
+        grid-area: ssid;
         align-self: center;
       }
 
-      .toolbar { grid-area: toolbar; }
+      .toolbar {
+        grid-area: toolbar;
+      }
 
-      .buttons { 
-        grid-area: buttons; 
+      .buttons {
+        grid-area: buttons;
         align-self: end;
       }
 
-      .footer { 
+      .footer {
         grid-area: footer;
-        align-self: end; 
+        align-self: end;
       }
 
-      .footerlogo { 
-        grid-area: footerlogo; 
+      .footerlogo {
+        grid-area: footerlogo;
         align-self: end;
       }
 
@@ -79,7 +175,7 @@
         width: 96px;
         height: 96px;
       }
-      
+
       ul {
         font-family: Verdana, Arial, Helvetica, sans-serif;
         font-size: 12px;
@@ -90,7 +186,7 @@
         text-transform: none;
         color: #144721;
         text-decoration: none;
-        background-color: #CCCCCC;
+        background-color: #cccccc;
         text-indent: 5px;
         list-style-position: outside;
         list-style-image: url(arrow.gif);
@@ -103,9 +199,9 @@
         width: 256px;
         max-width: 256px;
         min-width: 256px;
-        max-height: 90%;
-        min-height: 90%;
-        height: 90%;
+        max-height: 91%;
+        min-height: 91%;
+        height: 91%;
         overflow: auto;
       }
 
@@ -115,12 +211,10 @@
         border: 1px solid #d3d3d3;
         box-sizing: border-box;
       }
-
     </style>
   </head>
 
   <body>
-
     <div class="container">
       <div class="logo">
         <img src="Network-icon.png" alt="AREDN-FrontRoyal" />
@@ -134,25 +228,32 @@
           id="color1"
           value="#97C2FC"
         />
-        <div id="nodeData" ></div>
+        <div id="nodeData"></div>
       </div>
-      <div class="network" >
-        <div id="mynetwork"
-        ondrop="dragAndDropSettings(event);"
-        ondragover="dragover_handler(event)"
-        ></div>        
+      <div class="network">
+        <div
+          id="mynetwork"
+          ondrop="dragAndDropSettings(event);"
+          ondragover="dragover_handler(event)"
+        ></div>
       </div>
       <div class="ssid">
         <center><h2><%= meshName %></h2></center>
       </div>
       <div class="toolbar"></div>
-      <div class="buttons"></div>
+      <div class="buttons">
+        <button id="saveSettings" class="button-5" role="button">Save</button>
+        <button id="loadSettings" class="button-5" role="button">Load</button>
+        <button id="clearPos" class="button-5" role="button">Clear Pos</button>
+        <button id="clearAll" class="button-5" role="button">Clear All</button>
+      </div>
       <div class="footer"></div>
       <div class="footerlogo">
-        <a href="https://github.com/captainwasabi/topologrjs" target="_blank">Topologr v0.1b2</a>
+        <a href="https://github.com/captainwasabi/topologrjs" target="_blank">
+          Topologr v0.1b5
+        </a>
       </div>
     </div>
-
 
     <script type="text/javascript">
       var serverURL = "http://<%= serverURL %>";
@@ -295,7 +396,79 @@
       // create the network
       var network = new vis.Network(container, data, visNetworkOptions);
 
+      // open a dialog function
+      function openFileDialog (accept, multy = false, callback) { 
+          var inputElement = document.createElement("input");
+          inputElement.type = "file";
+          inputElement.accept = accept; // Note Edge does not support this attribute
+          if (multy) {
+              inputElement.multiple = multy;
+          }
+          if (typeof callback === "function") {
+              inputElement.addEventListener("change", callback);
+          }
+          inputElement.dispatchEvent(new MouseEvent("click")); 
+      }
+
+      // userButton click event
+      function openDialogClick () {
+          // open file dialog for text files
+          openFileDialog("settings.json,application/json", false, fileDialogChanged);
+      }
+
+      // file dialog onchange event handler
+      function fileDialogChanged (event) {
+          [...this.files].forEach(filex => {
+            var file = filex,
+              reader = new FileReader();
+            reader.onload = function (event) {
+              log("debug", event.target.result);
+              try {
+                let ds = JSON.parse(event.target.result);
+                //update the nodeArray with the data from the file
+                for (let i = 0; i < nodeArray.length; i++) {
+                  nn = nodeArray[i].id;
+                  try {
+                    nodeArray[i].x = ds.nodePositions[nn].x;
+                    nodeArray[i].y = ds.nodePositions[nn].y;
+                  } catch (e) {}
+                  var color;
+                  try {
+                    color = ds.nodeColors[nn];
+                    nodeColors[nn] = color;
+                  } catch (e) {}
+                  if (color !== undefined) {
+                    nodeArray[i].color = color;
+                  }
+                  log("debug", nodeArray[i]);
+                }
+                //save new positions to local storage
+                localStorage.setItem(
+                  "node-positions",
+                  JSON.stringify(ds.nodePositions)
+                );
+                //save new colors to local storage
+                localStorage.setItem("node-colors", JSON.stringify(ds.nodeColors));
+                updateVisNetworkNodes();
+              } catch (e) {
+                log("warn", e);
+              }
+            };
+            reader.readAsText(file); //start reading the file which triggers reader.onload
+          });
+      }
+
+
       //event handlers
+      var saveSettingsButton = document.getElementById("saveSettings")
+      saveSettingsButton.addEventListener("click", OnSaveSettings)     
+      var loadSettingsButton = document.getElementById("loadSettings")
+      loadSettingsButton.addEventListener("click", OnLoadSettings)
+      var clearPosButton = document.getElementById("clearPos")
+      clearPosButton.addEventListener("click", OnClearPos)
+      var clearAllButton = document.getElementById("clearAll")
+      clearAllButton.addEventListener("click", OnClearAll)
+
       network.on("doubleClick", (mydata) => {
         jump(mydata);
       });
@@ -313,6 +486,33 @@
       document.addEventListener("keydown", function (event) {
         onKeydown(event);
       });
+
+      function OnSaveSettings(){
+        console.log("saving");
+        downloadSettingsFile(
+          //download the position and and color settings into settings.json
+          JSON.stringify({
+            nodePositions,
+            nodeColors,
+          }),
+          "settings.json"
+        );
+      }
+
+      function OnLoadSettings() {
+        openDialogClick()
+      }
+
+      function OnClearPos() {
+          localStorage.removeItem("node-positions");
+          location.reload(true);
+      }
+
+      function OnClearAll() {
+        localStorage.removeItem("node-colors");
+        OnClearPos();
+      }
+
 
       window.onerror = function (msg, source, lineNo, columnNo, error) {
         log(
