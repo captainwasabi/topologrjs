@@ -246,6 +246,8 @@
         <button id="loadSettings" class="button-5" role="button">Load</button>
         <button id="clearPos" class="button-5" role="button">Clear Pos</button>
         <button id="clearAll" class="button-5" role="button">Clear All</button>
+        <button id="exportNet" class="button-5" role="button">Export Net</button>
+        <button id="importNet" class="button-5" role="button">Import Net</button>
       </div>
       <div class="footer"></div>
       <div class="footerlogo">
@@ -343,46 +345,7 @@
       nodePositions = getNodePositionsFromLocalStorage();
       nodeColors = getNodeColorsFromLocalStorage();
 
-      //process all the topology links
-      for (let i = 0; i < meshLinks.length; i++) {
-        //don't process links with undefined nodes.
-        if (
-          meshLinks[i].hasOwnProperty("from") ||
-          meshLinks[i].hasOwnProperty("to")
-        ) {
-          let extraOptions = {};
-          //if the link cost is < 0.1 then it's a DtD node so color it red
-          if (meshLinks[i].ecost < 0.1)
-            extraOptions = {
-              //color: "red",
-              title: "DtD",
-            };
-          //add the edge topology data to vis
-          //set the edge width inversely proportional to the cost
-          edgeArray.push({
-            from: meshLinks[i].from,
-            to: meshLinks[i].to,
-            arrows: {
-              to: { enabled: true },
-            },
-            title: meshLinks[i].ecost,
-            width: 5.0 / (meshLinks[i].ecost + 1.0),
-            ...extraOptions,
-          });
-          // Add the nodes
-          if (meshLinks[i].hasOwnProperty("from")) {
-            addNode(meshLinks[i].from);
-          }
-          if (meshLinks[i].hasOwnProperty("to")) {
-            addNode(meshLinks[i].to);
-          }
-        } else {
-          log("warn", `wtf: ${meshLinks[i]}`);
-        }
-        for (nodeName in nodePositions) {
-          addNode(nodeName);
-        }
-      }
+      processTopology();
 
       //initialize vis.js data structures with nodes and edges
       var nodes = new vis.DataSet(nodeArray);
@@ -395,6 +358,49 @@
 
       // create the network
       var network = new vis.Network(container, data, visNetworkOptions);
+
+      function processTopology(){
+        //process all the topology links
+        for (let i = 0; i < meshLinks.length; i++) {
+          //don't process links with undefined nodes.
+          if (
+            meshLinks[i].hasOwnProperty("from") ||
+            meshLinks[i].hasOwnProperty("to")
+          ) {
+            let extraOptions = {};
+            //if the link cost is < 0.1 then it's a DtD node so color it red
+            if (meshLinks[i].ecost < 0.1)
+              extraOptions = {
+                //color: "red",
+                title: "DtD",
+              };
+            //add the edge topology data to vis
+            //set the edge width inversely proportional to the cost
+            edgeArray.push({
+              from: meshLinks[i].from,
+              to: meshLinks[i].to,
+              arrows: {
+                to: { enabled: true },
+              },
+              title: meshLinks[i].ecost,
+              width: 5.0 / (meshLinks[i].ecost + 1.0),
+              ...extraOptions,
+            });
+            // Add the nodes
+            if (meshLinks[i].hasOwnProperty("from")) {
+              addNode(meshLinks[i].from);
+            }
+            if (meshLinks[i].hasOwnProperty("to")) {
+              addNode(meshLinks[i].to);
+            }
+          } else {
+            log("warn", `wtf: ${meshLinks[i]}`);
+          }
+          for (nodeName in nodePositions) {
+            addNode(nodeName);
+          }
+        }
+      }
 
       // open a dialog function
       function openFileDialog (accept, multy = false, callback) { 
@@ -458,6 +464,36 @@
           });
       }
 
+      // userButton click event
+      function importDialogClick () {
+          // open file dialog for text files
+          openFileDialog("exportNet.json,application/json", false, importDialogChanged);
+      }
+
+      // file dialog onchange event handler
+      function importDialogChanged (event) {
+          [...this.files].forEach(filex => {
+            var file = filex,
+              reader = new FileReader();
+            reader.onload = function (event) {
+              log("debug", event.target.result);
+              try {
+                let ds = JSON.parse(event.target.result);
+                meshLinks = ds.meshLinks
+                meshServices = ds.meshServices
+                nodeArray = [];
+                edgeArray = [];
+                processTopology();
+                updateVisNetworkNodes();
+                loadServices();
+              } catch (e) {
+                log("warn", e);
+              }
+            };
+            reader.readAsText(file); //start reading the file which triggers reader.onload
+          });
+      }
+
 
       //event handlers
       var saveSettingsButton = document.getElementById("saveSettings")
@@ -468,6 +504,10 @@
       clearPosButton.addEventListener("click", OnClearPos)
       var clearAllButton = document.getElementById("clearAll")
       clearAllButton.addEventListener("click", OnClearAll)
+      var exportNetButton = document.getElementById("exportNet")
+      exportNet.addEventListener("click", OnExportNet)
+      var importNetButton = document.getElementById("importNet")
+      importNet.addEventListener("click", OnImportNet)
 
       network.on("doubleClick", (mydata) => {
         jump(mydata);
@@ -488,8 +528,8 @@
       });
 
       function OnSaveSettings(){
-        console.log("saving");
-        downloadSettingsFile(
+        log("saving");
+        downloadFile(
           //download the position and and color settings into settings.json
           JSON.stringify({
             nodePositions,
@@ -513,6 +553,22 @@
         OnClearPos();
       }
 
+      function OnExportNet() {
+        console.log("exportNet");
+        downloadFile(
+          //download the position and and color settings into settings.json
+          JSON.stringify({
+            meshLinks,
+            meshServices,
+          }),
+          "exportNet.json"
+        );
+      }
+
+      function OnImportNet() {
+        importDialogClick();
+      }
+      
 
       window.onerror = function (msg, source, lineNo, columnNo, error) {
         log(
@@ -541,7 +597,7 @@
           location.reload(true); //force reload
         } else if (event.ctrlKey && event.key === "s") {
           //Ctrl+s - save settings
-          downloadSettingsFile(
+          downloadFile(
             //download the position and and color settings into settings.json
             JSON.stringify({
               nodePositions,
@@ -710,6 +766,7 @@
 
       function updateVisNetworkNodes() {
         nodes = new vis.DataSet(nodeArray);
+        edges = new vis.DataSet(edgeArray);
         data = {
           nodes: nodes,
           edges: edges,
@@ -807,7 +864,7 @@
         updateVisNetworkNodes(); //redraw the network
       }
 
-      function downloadSettingsFile(text, name) {
+      function downloadFile(text, name) {
         //because StackOverflow said (I think)
         const a = document.createElement("a");
         const type = name.split(".").pop();

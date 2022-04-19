@@ -151,10 +151,14 @@ async function processLinks(data){
 async function processServices(data){
   //build the mesh services map
   var services = {}; //{callsign: {nodeName: [{serviceName: URL}, ...]}}
+  logger.debug(`server:processServices: ${JSON.stringify(data)}`);
   for (let i = 0; i < data.services.length; i++) {
     let service = data.services[i];
-    let nn = meshIPMap[service.ip];
+    logger.debug(`server:processServices: ${JSON.stringify(service)}`);
+    let nn = await getNodeName(service.ip);
+    logger.debug(`server:processServices: ${JSON.stringify(nn)}`);
     let callsign = nn.substr(0, nn.search("-"));
+    logger.debug(`server:processServices: ${JSON.stringify(callsign)}`);
     if (services[callsign] === undefined) services[callsign] = {};
     if (services[callsign][nn] === undefined) services[callsign][nn] = {};
     services[callsign][nn][service.name] = service.link;
