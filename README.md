@@ -1,10 +1,12 @@
 # topologrjs
 
-NOTE: At this point I kinda have to step back.  This project has certainly grown from where it started, and to go any further I am going to need to turn it into a real javascript app layout, rather than just having everything in one giant file.  
+_NOTE: First, At this point I kinda have to step back and look at what I've got.  The code is as tangled as a mesh ;).  This project has certainly grown from where it started, and to go any further I am going to need to turn it into a real javascript app layout, rather than just having everything in one giant file._
 
-The second thing is that topologr was never meant to be an automatic layout engine.  For small nets vis.network uses some physics base algorithm to do a layout.  Obviously with large nets this completely fails.  I have put some tools in to help get nodes spread apart so they can be manually placed.  And grabbing all directly adjacent nodes.  I'm going to put in a button that turns the physics off completely which resolves the performance issue.
+_The second thing is that topologr was never meant to be an automatic layout engine.  For small nets vis.network uses some physics base algorithm to do a layout.  Obviously with large nets this completely fails.  I have put some tools in to help get nodes spread apart so they can be manually placed.  And grabbing all directly adjacent nodes.  I'm going to put in a button that turns the physics off completely which resolves the performance issue._
 
-So I plan to put out one more beta release with the stuff I've added, plus go through the issues list and knock off the easy things. Then go into a release candidate for v0.1 Then we'll start doing the work outlined above for v0.2b.
+_I plan to put out one more beta release with the stuff I've added, plus go through the issues list and knock off the easy things. Maybe by next weekend. Then go into a release candidate for v0.1 Then we'll start doing the work outlined above for v0.2b._
+
+=============
 
 Topologr is a topology mapper and mesh data explorer for an AREDN mesh network.
 
