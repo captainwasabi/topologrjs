@@ -4,6 +4,6 @@ kill $PROC 2> /dev/null
 pushd .. 
 rsync -a topologrjs/ topologrjs.dist/
 pushd topologrjs.dist
-PORT=3000 nohup node app.js 2>&1 >> topologr.log &
+PORT=3000 nohup node topologrjs-app.js 2>&1 >> topologr.log &
 popd 
 popd 
