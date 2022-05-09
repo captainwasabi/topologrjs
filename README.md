@@ -67,11 +67,22 @@ Contents:
   ```
   PORT=3000 node app.js
   ```
-9. if you run
+9. **!!_DEPRICATED!!_** ~~If you run
   ```
   ./pushprod.sh
   ```
-  from the command line this will create a new directory in the projects folder called topologrjs.dist, kill a process running on port 3000, then start the server in the background and redirecting all the console output to `~/projects/topologr.dist/topologr.log`.  This works for my purposes, but there are definitly more elegant and robust ways of doing it. YMMV
+  from the command line this will create a new directory in the projects folder called topologrjs.dist, kill a process running on port 3000, then start the server in the background and redirecting all the console output to `~/projects/topologr.dist/topologr.log`.  This works for my purposes, but there are definitly more elegant and robust ways of doing it. YMMV~~
+
+9. PM2
+
+  I highly recommend using the excellent pm2 package (https://pm2.keymetrics.io/) for process management.  To install do the following
+
+    npm install -g pm2
+    pm2 startup 
+    #execute the command that it gives you
+    pm2 start topologr.config.js --env production
+    pm2 save
+    pm2 monit
 
 ## Usage
 
