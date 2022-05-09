@@ -1,0 +1,196 @@
+
+    /* CSS */
+    .button-14 {
+    background-image: linear-gradient(#f7f8fa, #e7e9ec);
+    border-color: #adb1b8 #a2a6ac #8d9096;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 3px;
+    box-shadow: rgba(255, 255, 255, 0.6) 0 1px 0 inset;
+    box-sizing: border-box;
+    color: #0f1111;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Amazon Ember", Arial, sans-serif;
+    font-size: 14px;
+    height: 29px;
+    font-size: 13px;
+    outline: 0;
+    overflow: hidden;
+    padding: 0 11px;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    }
+
+    .button-14:active {
+    border-bottom-color: #a2a6ac;
+    }
+
+    .button-14:active:hover {
+    border-bottom-color: #a2a6ac;
+    }
+
+    .button-14:hover {
+    border-color: #a2a6ac #979aa1 #82858a;
+    }
+
+    .button-14:focus {
+    border-color: #e77600;
+    box-shadow: rgba(228, 121, 17, 0.5) 0 0 3px 2px;
+    outline: 0;
+    }
+
+    /* CSS */
+    .button-5 {
+    align-items: center;
+    background-clip: padding-box;
+    background-color: #1e00c8;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: system-ui, -apple-system, system-ui, "Helvetica Neue",
+        Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 0.5;
+    margin: 0;
+    min-height: 2rem;
+    /*padding: calc(.875rem - 1px) calc(1.5rem - 1px);*/
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: auto;
+    }
+
+    .button-5:hover,
+    .button-5:focus {
+    background-color: #351bca;
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+    }
+
+    .button-5:hover {
+    transform: translateY(-1px);
+    }
+
+    .button-5:active {
+    background-color: #796cc7;
+    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+    transform: translateY(0);
+    }
+
+    .container {
+    display: grid;
+    gap: 0px 0px;
+    grid-template-areas:
+        "logo ssid none"
+        "info network toolbar"
+        "footer buttons footerlogo";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 99vw;
+    height: 99vh;
+    max-height: 990vh;
+    }
+
+    .logo {
+    grid-area: logo;
+    align-self: center;
+    }
+
+    .info {
+    grid-area: info;
+    overflow: hidden;
+    }
+
+    .network {
+    grid-area: network;
+    height: 99%;
+    max-height: 99%;
+    }
+
+    .ssid {
+    grid-area: ssid;
+    align-self: center;
+    }
+
+    .toolbar {
+    grid-area: toolbar;
+    }
+
+    .buttons {
+    grid-area: buttons;
+    align-self: end;
+    }
+
+    .footer {
+    grid-area: footer;
+    align-self: end;
+    }
+
+    .footerlogo {
+    grid-area: footerlogo;
+    align-self: end;
+    }
+
+    #color1 {
+    width: 120px;
+    height: 40px;
+    margin: 15px auto;
+    display: none;
+    }
+
+    img {
+    width: 96px;
+    height: 96px;
+    }
+
+    ul {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    line-height: 2em;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    color: #144721;
+    text-decoration: none;
+    background-color: #cccccc;
+    text-indent: 5px;
+    list-style-position: outside;
+    list-style-image: url(arrow.gif);
+    list-style-type: square;
+
+    margin: 2px;
+    }
+
+    #nodeData {
+    width: 256px;
+    max-width: 256px;
+    min-width: 256px;
+    max-height: 91%;
+    min-height: 91%;
+    height: 91%;
+    overflow: auto;
+    }
+
+    #mynetwork {
+    /*width: 100%;*/
+    height: 100%;
+    border: 1px solid #d3d3d3;
+    box-sizing: border-box;
+    }
