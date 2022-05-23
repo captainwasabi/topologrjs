@@ -188,6 +188,10 @@
     overflow: auto;
     }
 
+    #toolbar {
+        overflow: auto;
+    }
+
     #mynetwork {
     /*width: 100%;*/
     height: 100%;

@@ -33,7 +33,7 @@ function log(level, message) {
 
 ///////////////////////////////////////////////////////////////////
 
-var allSpan = [];
+
 
 var selectedNode;
 var nodeGroup = [];
@@ -70,7 +70,15 @@ const visNetworkOptions = {
     },
   },
   physics: false,
+  configure: {
+      enabled: true,
+      filter: true, //'nodes,edges',
+      container: document.getElementById("toolbar"),
+      showButton: true
+    }
 };
+
+document.getElementById("toolbar").style.display = "none";
 
 //data insertion from server
 //convert codes back to characters
@@ -252,6 +260,8 @@ var clusterNodeButton = document.getElementById("clusterNode")
 clusterNodeButton.addEventListener("click", OnClusterNode)
 var LockPosButton = document.getElementById("lockPos")
 LockPosButton.addEventListener("click", OnLockPos)
+var SettingsButton = document.getElementById("settings")
+SettingsButton.addEventListener("click", OnSettings)
 
 network.on("doubleClick", (mydata) => {
   jump(mydata);
@@ -408,6 +418,15 @@ function OnLockPos() {
   nodeArray[snode].locked = !nodeArray[snode].locked;
 }
 
+function OnSettings() {
+  var x = document.getElementById("toolbar");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
 
 window.onerror = function (msg, source, lineNo, columnNo, error) {
   log(
@@ -483,7 +502,7 @@ async function loadServices() {
   }
   await removeChildren(document.getElementById("nodeData")); //clear it again just in case
   document.getElementById("nodeData").innerHTML = rjson; // appendChild(rjson); //add the data to the nodeData div
-  allSpan = document.getElementsByTagName("span");
+  var allSpan = document.getElementsByTagName("span");
   for (var x = 0; x < allSpan.length; x++) {
     var childList = allSpan[x].parentNode.getElementsByTagName("li");
     for (var y = 0; y < childList.length; y++) {
