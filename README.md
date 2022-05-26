@@ -1,10 +1,6 @@
 # topologrjs
 
-_NOTE: First, At this point I kinda have to step back and look at what I've got.  The code is as tangled as a mesh ;).  This project has certainly grown from where it started, and to go any further I am going to need to turn it into a real javascript app layout, rather than just having everything in one giant file._
-
-_The second thing is that topologr was never meant to be an automatic layout engine.  For small nets vis.network uses some physics base algorithm to do a layout.  Obviously with large nets this completely fails.  I have put some tools in to help get nodes spread apart so they can be manually placed.  And grabbing all directly adjacent nodes.  I'm going to put in a button that turns the physics off completely which resolves the performance issue._
-
-_I plan to put out one more beta release with the stuff I've added, plus go through the issues list and knock off the easy things. Maybe by next weekend. Then go into a release candidate for v0.1 Then we'll start doing the work outlined above for v0.2b._
+_NOTE: New Release which improves large mesh handling. See the video at: https://cloud.dougwalker.us/s/mePDAPkgTMTj7CE. There are a few new buttons, but the main ones are Grid (rearranges the nodes into a grid pattern and colors them by callsign) and Settings (brings up the network settings which let's you play with the physics settings). It should help you organize large networks to some extend. Again, see the video for an example. I don't think there is a "one-size-fits-all" process to this. It kind of feels like processing astrophotography. Try something and see how it acts. But it's definitely an iterative process to get to something usable. There is one feature that is clearly mandatory, and that is to support multi-selection and adjusting positions. Easy enough to enable multi-selection, but when you try to move a node it just moves that single node. I'm not sure how difficult that is going to be to add in so I thought I would put this up some people could play with it some. It may need both translation of groups and rotation, but we'll see._
 
 =============
 
