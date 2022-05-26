@@ -336,9 +336,10 @@ function OnGridNet() {
   nodeArray.sort()
   row = 0;
   col = 0;
-  var callsign = ""
+  var callsign = "" 
   var rColor = rColor = getColorCode()
   var rc = parseInt(Math.sqrt(nodeArray.length))
+  nodeArray.sort();
   for (let i = 0; i < nodeArray.length; i++) {
     if (callsign === null ) {
       callsign = nodeArray[i].id.substr(0, selectedNode.indexOf("-") - 1)
