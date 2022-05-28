@@ -57,7 +57,7 @@ Contents:
   ```
 8. Run it.
   ```
-  node app.js
+  node topologrjs-app.js
   ```
   This will start the system listenting to port 3001 which is the port I use for testing development versions.  To set the port to something different use
   ```
