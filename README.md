@@ -61,7 +61,7 @@ Contents:
   ```
   This will start the system listenting to port 3001 which is the port I use for testing development versions.  To set the port to something different use
   ```
-  PORT=3000 node app.js
+  PORT=3000 node topologrjs-app.js
   ```
 9. **!!_DEPRICATED!!_** ~~If you run
   ```
