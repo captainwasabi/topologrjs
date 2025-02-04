@@ -168,7 +168,7 @@ async function processServices(data){
 
 async function main(req, res) {
   var jdata = await getJsonDataFromURL(
-    "http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1"
+    "http://localnode.local.mesh/cgi-bin/sysinfo.json?hosts=1&services=1&link_info=1&topology=1"
   );
   meshSSID = jdata.meshrf.ssid;
   //for each host
@@ -178,10 +178,8 @@ async function main(req, res) {
   //process the services map
   services = await processServices(jdata);
 
-  //get the local node's 9090 json data dump (this has everything!)
-  var odata = await getJsonDataFromURL("http://localnode.local.mesh:9090");
   //process the links array
-  links = await processLinks(odata);
+  links = await processLinks(jdata);
 
   //You've been served
   res.render("index", {
